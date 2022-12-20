@@ -19,7 +19,7 @@ func NewCalc(logger *log.Logger) calc.Service {
 
 // Multiply implements multiply.
 func (s *calcsrvc) Multiply(_ context.Context, p *calc.MultiplyPayload) (res int, err error) {
-	res = p.A * p.A
+	res = p.A * p.B
 	return
 }
 
