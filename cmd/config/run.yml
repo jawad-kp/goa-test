@@ -1,0 +1,5 @@
+db_config:
+  host: "localhost"
+  port: 27017
+  collection: "Notes"
+  database: "NotesApp"
