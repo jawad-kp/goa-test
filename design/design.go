@@ -110,14 +110,17 @@ var _ = Service("calc", func() {
 	})
 	Method("createNote", func() {
 		Payload(func() {
-			Field(1, "userID", String, "The Note to be saved")
+			Field(1, "userID", String, "The UserID for the note")
+			Field(2, "Note", Note, "The Note data to be saved")
 			Required("userID")
 		})
-
-		Result(Note)
-
+		Error("BadRequest")
 		HTTP(func() {
 			POST("/notes/{userID}")
+			Body("Note")
+			Response(StatusCreated)
+			Response("BadRequest", StatusBadRequest)
+
 		})
 
 		GRPC(func() {
