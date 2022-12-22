@@ -4,6 +4,14 @@ import (
 	. "goa.design/goa/v3/dsl"
 )
 
+var (
+	Note = Type("Note", func() {
+		Field(1, "Title", String, "The title of the Note")
+		Field(2, "Body", String, "The Body of the Note")
+
+	})
+)
+
 var _ = API("calc", func() {
 	Title("Calculator Service")
 	Description("Service for multiplying numbers, a Goa teaser")
@@ -77,6 +85,39 @@ var _ = Service("calc", func() {
 
 		HTTP(func() {
 			GET("/divide/{a}/{b}")
+		})
+
+		GRPC(func() {
+		})
+	})
+
+	Method("getNotes", func() {
+		Payload(func() {
+			Field(1, "userID", String, "The email of the user")
+			Required("userID")
+		})
+
+		Result(func() {
+			Field(1, "notes", ArrayOf(Note), "list of notes")
+		})
+
+		HTTP(func() {
+			GET("/notes/{userID}")
+		})
+
+		GRPC(func() {
+		})
+	})
+	Method("createNote", func() {
+		Payload(func() {
+			Field(1, "userID", String, "The Note to be saved")
+			Required("userID")
+		})
+
+		Result(Note)
+
+		HTTP(func() {
+			POST("/notes/{userID}")
 		})
 
 		GRPC(func() {
