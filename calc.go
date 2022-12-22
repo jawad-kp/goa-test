@@ -40,3 +40,17 @@ func (s *calcsrvc) Divide(_ context.Context, p *calc.DividePayload) (res float64
 	res = float64(p.A) / float64(p.B)
 	return
 }
+
+// GetNotes implements getNotes.
+func (s *calcsrvc) GetNotes(_ context.Context, _ *calc.GetNotesPayload) (res *calc.GetNotesResult, err error) {
+	res = &calc.GetNotesResult{}
+	s.logger.Print("calc.getNotes")
+	return
+}
+
+// CreateNote implements createNote.
+func (s *calcsrvc) CreateNote(_ context.Context, _ *calc.CreateNotePayload) (res *calc.Note, err error) {
+	res = &calc.Note{}
+	s.logger.Print("calc.createNote")
+	return
+}
