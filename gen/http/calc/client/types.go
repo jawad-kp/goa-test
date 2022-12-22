@@ -6,3 +6,56 @@
 // $ goa gen goa-test/design
 
 package client
+
+import (
+	calc "goa-test/gen/calc"
+)
+
+// GetNotesResponseBody is the type of the "calc" service "getNotes" endpoint
+// HTTP response body.
+type GetNotesResponseBody struct {
+	// list of notes
+	Notes []*NoteResponseBody `form:"notes,omitempty" json:"notes,omitempty" xml:"notes,omitempty"`
+}
+
+// CreateNoteResponseBody is the type of the "calc" service "createNote"
+// endpoint HTTP response body.
+type CreateNoteResponseBody struct {
+	// The title of the Note
+	Title *string `form:"Title,omitempty" json:"Title,omitempty" xml:"Title,omitempty"`
+	// The Body of the Note
+	Body *string `form:"Body,omitempty" json:"Body,omitempty" xml:"Body,omitempty"`
+}
+
+// NoteResponseBody is used to define fields on response body types.
+type NoteResponseBody struct {
+	// The title of the Note
+	Title *string `form:"Title,omitempty" json:"Title,omitempty" xml:"Title,omitempty"`
+	// The Body of the Note
+	Body *string `form:"Body,omitempty" json:"Body,omitempty" xml:"Body,omitempty"`
+}
+
+// NewGetNotesResultOK builds a "calc" service "getNotes" endpoint result from
+// a HTTP "OK" response.
+func NewGetNotesResultOK(body *GetNotesResponseBody) *calc.GetNotesResult {
+	v := &calc.GetNotesResult{}
+	if body.Notes != nil {
+		v.Notes = make([]*calc.Note, len(body.Notes))
+		for i, val := range body.Notes {
+			v.Notes[i] = unmarshalNoteResponseBodyToCalcNote(val)
+		}
+	}
+
+	return v
+}
+
+// NewCreateNoteNoteOK builds a "calc" service "createNote" endpoint result
+// from a HTTP "OK" response.
+func NewCreateNoteNoteOK(body *CreateNoteResponseBody) *calc.Note {
+	v := &calc.Note{
+		Title: body.Title,
+		Body:  body.Body,
+	}
+
+	return v
+}

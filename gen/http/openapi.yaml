@@ -88,6 +88,43 @@ paths:
                         format: int64
             schemes:
                 - http
+    /notes/{userID}:
+        get:
+            tags:
+                - calc
+            summary: getNotes calc
+            operationId: calc#getNotes
+            parameters:
+                - name: userID
+                  in: path
+                  description: The email of the user
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/CalcGetNotesResponseBody'
+            schemes:
+                - http
+        post:
+            tags:
+                - calc
+            summary: createNote calc
+            operationId: calc#createNote
+            parameters:
+                - name: userID
+                  in: path
+                  description: The Note to be saved
+                  required: true
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/CalcCreateNoteResponseBody'
+            schemes:
+                - http
     /openapi.json:
         get:
             tags:
@@ -126,3 +163,58 @@ paths:
                         format: int64
             schemes:
                 - http
+definitions:
+    CalcCreateNoteResponseBody:
+        title: CalcCreateNoteResponseBody
+        type: object
+        properties:
+            Body:
+                type: string
+                description: The Body of the Note
+                example: Dolor aut officiis quos voluptates rerum.
+            Title:
+                type: string
+                description: The title of the Note
+                example: Doloremque qui recusandae.
+        example:
+            Body: Minus inventore accusamus.
+            Title: Quas deserunt quos est debitis accusamus.
+    CalcGetNotesResponseBody:
+        title: CalcGetNotesResponseBody
+        type: object
+        properties:
+            notes:
+                type: array
+                items:
+                    $ref: '#/definitions/NoteResponseBody'
+                description: list of notes
+                example:
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+        example:
+            notes:
+                - Body: Quibusdam eius.
+                  Title: Necessitatibus quis quasi est eum ad.
+                - Body: Quibusdam eius.
+                  Title: Necessitatibus quis quasi est eum ad.
+    NoteResponseBody:
+        title: NoteResponseBody
+        type: object
+        properties:
+            Body:
+                type: string
+                description: The Body of the Note
+                example: Odit iusto vitae.
+            Title:
+                type: string
+                description: The title of the Note
+                example: Ea ut enim aut.
+        example:
+            Body: Labore at fuga ut aliquam.
+            Title: Aut veritatis voluptas.

@@ -31,6 +31,14 @@ type Client struct {
 	// Divide Doer is the HTTP client used to make requests to the divide endpoint.
 	DivideDoer goahttp.Doer
 
+	// GetNotes Doer is the HTTP client used to make requests to the getNotes
+	// endpoint.
+	GetNotesDoer goahttp.Doer
+
+	// CreateNote Doer is the HTTP client used to make requests to the createNote
+	// endpoint.
+	CreateNoteDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -55,6 +63,8 @@ func NewClient(
 		AddDoer:             doer,
 		SubtractDoer:        doer,
 		DivideDoer:          doer,
+		GetNotesDoer:        doer,
+		CreateNoteDoer:      doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -134,6 +144,44 @@ func (c *Client) Divide() goa.Endpoint {
 		resp, err := c.DivideDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("calc", "divide", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// GetNotes returns an endpoint that makes HTTP requests to the calc service
+// getNotes server.
+func (c *Client) GetNotes() goa.Endpoint {
+	var (
+		decodeResponse = DecodeGetNotesResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildGetNotesRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.GetNotesDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("calc", "getNotes", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// CreateNote returns an endpoint that makes HTTP requests to the calc service
+// createNote server.
+func (c *Client) CreateNote() goa.Endpoint {
+	var (
+		decodeResponse = DecodeCreateNoteResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildCreateNoteRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.CreateNoteDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("calc", "createNote", err)
 		}
 		return decodeResponse(resp)
 	}

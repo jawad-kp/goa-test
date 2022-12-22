@@ -21,6 +21,10 @@ service Calc {
 	rpc Subtract (SubtractRequest) returns (SubtractResponse);
 	// Divide implements divide.
 	rpc Divide (DivideRequest) returns (DivideResponse);
+	// GetNotes implements getNotes.
+	rpc GetNotes (GetNotesRequest) returns (GetNotesResponse);
+	// CreateNote implements createNote.
+	rpc CreateNote (CreateNoteRequest) returns (CreateNoteResponse);
 }
 
 message MultiplyRequest {
@@ -65,4 +69,33 @@ message DivideRequest {
 
 message DivideResponse {
 	double field = 1;
+}
+
+message GetNotesRequest {
+	// The email of the user
+	string user_id = 1;
+}
+
+message GetNotesResponse {
+	// list of notes
+	repeated Note notes = 1;
+}
+
+message Note {
+	// The title of the Note
+	optional string title = 1;
+	// The Body of the Note
+	optional string body = 2;
+}
+
+message CreateNoteRequest {
+	// The Note to be saved
+	string user_id = 1;
+}
+
+message CreateNoteResponse {
+	// The title of the Note
+	optional string title = 1;
+	// The Body of the Note
+	optional string body = 2;
 }

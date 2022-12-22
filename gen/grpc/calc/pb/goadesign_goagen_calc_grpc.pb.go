@@ -30,6 +30,10 @@ type CalcClient interface {
 	Subtract(ctx context.Context, in *SubtractRequest, opts ...grpc.CallOption) (*SubtractResponse, error)
 	// Divide implements divide.
 	Divide(ctx context.Context, in *DivideRequest, opts ...grpc.CallOption) (*DivideResponse, error)
+	// GetNotes implements getNotes.
+	GetNotes(ctx context.Context, in *GetNotesRequest, opts ...grpc.CallOption) (*GetNotesResponse, error)
+	// CreateNote implements createNote.
+	CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error)
 }
 
 type calcClient struct {
@@ -76,6 +80,24 @@ func (c *calcClient) Divide(ctx context.Context, in *DivideRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *calcClient) GetNotes(ctx context.Context, in *GetNotesRequest, opts ...grpc.CallOption) (*GetNotesResponse, error) {
+	out := new(GetNotesResponse)
+	err := c.cc.Invoke(ctx, "/calc.Calc/GetNotes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *calcClient) CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error) {
+	out := new(CreateNoteResponse)
+	err := c.cc.Invoke(ctx, "/calc.Calc/CreateNote", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CalcServer is the server API for Calc service.
 // All implementations must embed UnimplementedCalcServer
 // for forward compatibility
@@ -88,6 +110,10 @@ type CalcServer interface {
 	Subtract(context.Context, *SubtractRequest) (*SubtractResponse, error)
 	// Divide implements divide.
 	Divide(context.Context, *DivideRequest) (*DivideResponse, error)
+	// GetNotes implements getNotes.
+	GetNotes(context.Context, *GetNotesRequest) (*GetNotesResponse, error)
+	// CreateNote implements createNote.
+	CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error)
 	mustEmbedUnimplementedCalcServer()
 }
 
@@ -106,6 +132,12 @@ func (UnimplementedCalcServer) Subtract(context.Context, *SubtractRequest) (*Sub
 }
 func (UnimplementedCalcServer) Divide(context.Context, *DivideRequest) (*DivideResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Divide not implemented")
+}
+func (UnimplementedCalcServer) GetNotes(context.Context, *GetNotesRequest) (*GetNotesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNotes not implemented")
+}
+func (UnimplementedCalcServer) CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateNote not implemented")
 }
 func (UnimplementedCalcServer) mustEmbedUnimplementedCalcServer() {}
 
@@ -192,6 +224,42 @@ func _Calc_Divide_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Calc_GetNotes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNotesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CalcServer).GetNotes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/calc.Calc/GetNotes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CalcServer).GetNotes(ctx, req.(*GetNotesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Calc_CreateNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CalcServer).CreateNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/calc.Calc/CreateNote",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CalcServer).CreateNote(ctx, req.(*CreateNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Calc_ServiceDesc is the grpc.ServiceDesc for Calc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -214,6 +282,14 @@ var Calc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Divide",
 			Handler:    _Calc_Divide_Handler,
+		},
+		{
+			MethodName: "GetNotes",
+			Handler:    _Calc_GetNotes_Handler,
+		},
+		{
+			MethodName: "CreateNote",
+			Handler:    _Calc_CreateNote_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

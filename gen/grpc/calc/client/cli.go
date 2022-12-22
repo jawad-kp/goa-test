@@ -23,7 +23,7 @@ func BuildMultiplyPayload(calcMultiplyMessage string) (*calc.MultiplyPayload, er
 		if calcMultiplyMessage != "" {
 			err = json.Unmarshal([]byte(calcMultiplyMessage), &message)
 			if err != nil {
-				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 5850431520333673251,\n      \"b\": 1089204046671954241\n   }'")
+				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 3546414149089559360,\n      \"b\": 1618669811688599017\n   }'")
 			}
 		}
 	}
@@ -43,7 +43,7 @@ func BuildAddPayload(calcAddMessage string) (*calc.AddPayload, error) {
 		if calcAddMessage != "" {
 			err = json.Unmarshal([]byte(calcAddMessage), &message)
 			if err != nil {
-				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 8614350958614154271,\n      \"b\": 4285228716133201605\n   }'")
+				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 4669454048700716669,\n      \"b\": 1294861662385682529\n   }'")
 			}
 		}
 	}
@@ -64,7 +64,7 @@ func BuildSubtractPayload(calcSubtractMessage string) (*calc.SubtractPayload, er
 		if calcSubtractMessage != "" {
 			err = json.Unmarshal([]byte(calcSubtractMessage), &message)
 			if err != nil {
-				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 6525775414444532386,\n      \"b\": 5635247262153220700\n   }'")
+				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 2574101197078288820,\n      \"b\": 9032300625042805317\n   }'")
 			}
 		}
 	}
@@ -85,13 +85,53 @@ func BuildDividePayload(calcDivideMessage string) (*calc.DividePayload, error) {
 		if calcDivideMessage != "" {
 			err = json.Unmarshal([]byte(calcDivideMessage), &message)
 			if err != nil {
-				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 5487677923305002774,\n      \"b\": 1187293393747494935\n   }'")
+				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"a\": 6480680201785989957,\n      \"b\": 577828123511009763\n   }'")
 			}
 		}
 	}
 	v := &calc.DividePayload{
 		A: int(message.A),
 		B: int(message.B),
+	}
+
+	return v, nil
+}
+
+// BuildGetNotesPayload builds the payload for the calc getNotes endpoint from
+// CLI flags.
+func BuildGetNotesPayload(calcGetNotesMessage string) (*calc.GetNotesPayload, error) {
+	var err error
+	var message calcpb.GetNotesRequest
+	{
+		if calcGetNotesMessage != "" {
+			err = json.Unmarshal([]byte(calcGetNotesMessage), &message)
+			if err != nil {
+				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"userID\": \"Voluptas sed neque consequatur maiores aut sed.\"\n   }'")
+			}
+		}
+	}
+	v := &calc.GetNotesPayload{
+		UserID: message.UserId,
+	}
+
+	return v, nil
+}
+
+// BuildCreateNotePayload builds the payload for the calc createNote endpoint
+// from CLI flags.
+func BuildCreateNotePayload(calcCreateNoteMessage string) (*calc.CreateNotePayload, error) {
+	var err error
+	var message calcpb.CreateNoteRequest
+	{
+		if calcCreateNoteMessage != "" {
+			err = json.Unmarshal([]byte(calcCreateNoteMessage), &message)
+			if err != nil {
+				return nil, fmt.Errorf("invalid JSON for message, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"userID\": \"Quis dolorum corporis officiis rerum.\"\n   }'")
+			}
+		}
+	}
+	v := &calc.CreateNotePayload{
+		UserID: message.UserId,
 	}
 
 	return v, nil

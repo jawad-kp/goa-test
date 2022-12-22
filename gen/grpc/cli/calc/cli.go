@@ -21,15 +21,15 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `calc (multiply|add|subtract|divide)
+	return `calc (multiply|add|subtract|divide|get-notes|create-note)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` calc multiply --message '{
-      "a": 5850431520333673251,
-      "b": 1089204046671954241
+      "a": 3546414149089559360,
+      "b": 1618669811688599017
    }'` + "\n" +
 		""
 }
@@ -51,12 +51,20 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 
 		calcDivideFlags       = flag.NewFlagSet("divide", flag.ExitOnError)
 		calcDivideMessageFlag = calcDivideFlags.String("message", "", "")
+
+		calcGetNotesFlags       = flag.NewFlagSet("get-notes", flag.ExitOnError)
+		calcGetNotesMessageFlag = calcGetNotesFlags.String("message", "", "")
+
+		calcCreateNoteFlags       = flag.NewFlagSet("create-note", flag.ExitOnError)
+		calcCreateNoteMessageFlag = calcCreateNoteFlags.String("message", "", "")
 	)
 	calcFlags.Usage = calcUsage
 	calcMultiplyFlags.Usage = calcMultiplyUsage
 	calcAddFlags.Usage = calcAddUsage
 	calcSubtractFlags.Usage = calcSubtractUsage
 	calcDivideFlags.Usage = calcDivideUsage
+	calcGetNotesFlags.Usage = calcGetNotesUsage
+	calcCreateNoteFlags.Usage = calcCreateNoteUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -104,6 +112,12 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 			case "divide":
 				epf = calcDivideFlags
 
+			case "get-notes":
+				epf = calcGetNotesFlags
+
+			case "create-note":
+				epf = calcCreateNoteFlags
+
 			}
 
 		}
@@ -141,6 +155,12 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 			case "divide":
 				endpoint = c.Divide()
 				data, err = calcc.BuildDividePayload(*calcDivideMessageFlag)
+			case "get-notes":
+				endpoint = c.GetNotes()
+				data, err = calcc.BuildGetNotesPayload(*calcGetNotesMessageFlag)
+			case "create-note":
+				endpoint = c.CreateNote()
+				data, err = calcc.BuildCreateNotePayload(*calcCreateNoteMessageFlag)
 			}
 		}
 	}
@@ -162,6 +182,8 @@ COMMAND:
     add: Add implements add.
     subtract: Subtract implements subtract.
     divide: Divide implements divide.
+    get-notes: GetNotes implements getNotes.
+    create-note: CreateNote implements createNote.
 
 Additional help:
     %[1]s calc COMMAND --help
@@ -175,8 +197,8 @@ Multiply implements multiply.
 
 Example:
     %[1]s calc multiply --message '{
-      "a": 5850431520333673251,
-      "b": 1089204046671954241
+      "a": 3546414149089559360,
+      "b": 1618669811688599017
    }'
 `, os.Args[0])
 }
@@ -189,8 +211,8 @@ Add implements add.
 
 Example:
     %[1]s calc add --message '{
-      "a": 8614350958614154271,
-      "b": 4285228716133201605
+      "a": 4669454048700716669,
+      "b": 1294861662385682529
    }'
 `, os.Args[0])
 }
@@ -203,8 +225,8 @@ Subtract implements subtract.
 
 Example:
     %[1]s calc subtract --message '{
-      "a": 6525775414444532386,
-      "b": 5635247262153220700
+      "a": 2574101197078288820,
+      "b": 9032300625042805317
    }'
 `, os.Args[0])
 }
@@ -217,8 +239,34 @@ Divide implements divide.
 
 Example:
     %[1]s calc divide --message '{
-      "a": 5487677923305002774,
-      "b": 1187293393747494935
+      "a": 6480680201785989957,
+      "b": 577828123511009763
+   }'
+`, os.Args[0])
+}
+
+func calcGetNotesUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc get-notes -message JSON
+
+GetNotes implements getNotes.
+    -message JSON: 
+
+Example:
+    %[1]s calc get-notes --message '{
+      "userID": "Voluptas sed neque consequatur maiores aut sed."
+   }'
+`, os.Args[0])
+}
+
+func calcCreateNoteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc create-note -message JSON
+
+CreateNote implements createNote.
+    -message JSON: 
+
+Example:
+    %[1]s calc create-note --message '{
+      "userID": "Quis dolorum corporis officiis rerum."
    }'
 `, os.Args[0])
 }

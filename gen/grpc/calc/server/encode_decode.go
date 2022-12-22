@@ -133,3 +133,63 @@ func DecodeDivideRequest(ctx context.Context, v interface{}, md metadata.MD) (in
 	}
 	return payload, nil
 }
+
+// EncodeGetNotesResponse encodes responses from the "calc" service "getNotes"
+// endpoint.
+func EncodeGetNotesResponse(ctx context.Context, v interface{}, hdr, trlr *metadata.MD) (interface{}, error) {
+	result, ok := v.(*calc.GetNotesResult)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "getNotes", "*calc.GetNotesResult", v)
+	}
+	resp := NewProtoGetNotesResponse(result)
+	return resp, nil
+}
+
+// DecodeGetNotesRequest decodes requests sent to "calc" service "getNotes"
+// endpoint.
+func DecodeGetNotesRequest(ctx context.Context, v interface{}, md metadata.MD) (interface{}, error) {
+	var (
+		message *calcpb.GetNotesRequest
+		ok      bool
+	)
+	{
+		if message, ok = v.(*calcpb.GetNotesRequest); !ok {
+			return nil, goagrpc.ErrInvalidType("calc", "getNotes", "*calcpb.GetNotesRequest", v)
+		}
+	}
+	var payload *calc.GetNotesPayload
+	{
+		payload = NewGetNotesPayload(message)
+	}
+	return payload, nil
+}
+
+// EncodeCreateNoteResponse encodes responses from the "calc" service
+// "createNote" endpoint.
+func EncodeCreateNoteResponse(ctx context.Context, v interface{}, hdr, trlr *metadata.MD) (interface{}, error) {
+	result, ok := v.(*calc.Note)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "createNote", "*calc.Note", v)
+	}
+	resp := NewProtoCreateNoteResponse(result)
+	return resp, nil
+}
+
+// DecodeCreateNoteRequest decodes requests sent to "calc" service "createNote"
+// endpoint.
+func DecodeCreateNoteRequest(ctx context.Context, v interface{}, md metadata.MD) (interface{}, error) {
+	var (
+		message *calcpb.CreateNoteRequest
+		ok      bool
+	)
+	{
+		if message, ok = v.(*calcpb.CreateNoteRequest); !ok {
+			return nil, goagrpc.ErrInvalidType("calc", "createNote", "*calcpb.CreateNoteRequest", v)
+		}
+	}
+	var payload *calc.CreateNotePayload
+	{
+		payload = NewCreateNotePayload(message)
+	}
+	return payload, nil
+}

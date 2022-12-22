@@ -15,19 +15,23 @@ import (
 
 // Client is the "calc" service client.
 type Client struct {
-	MultiplyEndpoint goa.Endpoint
-	AddEndpoint      goa.Endpoint
-	SubtractEndpoint goa.Endpoint
-	DivideEndpoint   goa.Endpoint
+	MultiplyEndpoint   goa.Endpoint
+	AddEndpoint        goa.Endpoint
+	SubtractEndpoint   goa.Endpoint
+	DivideEndpoint     goa.Endpoint
+	GetNotesEndpoint   goa.Endpoint
+	CreateNoteEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "calc" service client given the endpoints.
-func NewClient(multiply, add, subtract, divide goa.Endpoint) *Client {
+func NewClient(multiply, add, subtract, divide, getNotes, createNote goa.Endpoint) *Client {
 	return &Client{
-		MultiplyEndpoint: multiply,
-		AddEndpoint:      add,
-		SubtractEndpoint: subtract,
-		DivideEndpoint:   divide,
+		MultiplyEndpoint:   multiply,
+		AddEndpoint:        add,
+		SubtractEndpoint:   subtract,
+		DivideEndpoint:     divide,
+		GetNotesEndpoint:   getNotes,
+		CreateNoteEndpoint: createNote,
 	}
 }
 
@@ -69,4 +73,24 @@ func (c *Client) Divide(ctx context.Context, p *DividePayload) (res float64, err
 		return
 	}
 	return ires.(float64), nil
+}
+
+// GetNotes calls the "getNotes" endpoint of the "calc" service.
+func (c *Client) GetNotes(ctx context.Context, p *GetNotesPayload) (res *GetNotesResult, err error) {
+	var ires interface{}
+	ires, err = c.GetNotesEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*GetNotesResult), nil
+}
+
+// CreateNote calls the "createNote" endpoint of the "calc" service.
+func (c *Client) CreateNote(ctx context.Context, p *CreateNotePayload) (res *Note, err error) {
+	var ires interface{}
+	ires, err = c.CreateNoteEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*Note), nil
 }

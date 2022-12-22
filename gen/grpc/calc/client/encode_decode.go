@@ -148,3 +148,69 @@ func DecodeDivideResponse(ctx context.Context, v interface{}, hdr, trlr metadata
 	res := NewDivideResult(message)
 	return res, nil
 }
+
+// BuildGetNotesFunc builds the remote method to invoke for "calc" service
+// "getNotes" endpoint.
+func BuildGetNotesFunc(grpccli calcpb.CalcClient, cliopts ...grpc.CallOption) goagrpc.RemoteFunc {
+	return func(ctx context.Context, reqpb interface{}, opts ...grpc.CallOption) (interface{}, error) {
+		for _, opt := range cliopts {
+			opts = append(opts, opt)
+		}
+		if reqpb != nil {
+			return grpccli.GetNotes(ctx, reqpb.(*calcpb.GetNotesRequest), opts...)
+		}
+		return grpccli.GetNotes(ctx, &calcpb.GetNotesRequest{}, opts...)
+	}
+}
+
+// EncodeGetNotesRequest encodes requests sent to calc getNotes endpoint.
+func EncodeGetNotesRequest(ctx context.Context, v interface{}, md *metadata.MD) (interface{}, error) {
+	payload, ok := v.(*calc.GetNotesPayload)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "getNotes", "*calc.GetNotesPayload", v)
+	}
+	return NewProtoGetNotesRequest(payload), nil
+}
+
+// DecodeGetNotesResponse decodes responses from the calc getNotes endpoint.
+func DecodeGetNotesResponse(ctx context.Context, v interface{}, hdr, trlr metadata.MD) (interface{}, error) {
+	message, ok := v.(*calcpb.GetNotesResponse)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "getNotes", "*calcpb.GetNotesResponse", v)
+	}
+	res := NewGetNotesResult(message)
+	return res, nil
+}
+
+// BuildCreateNoteFunc builds the remote method to invoke for "calc" service
+// "createNote" endpoint.
+func BuildCreateNoteFunc(grpccli calcpb.CalcClient, cliopts ...grpc.CallOption) goagrpc.RemoteFunc {
+	return func(ctx context.Context, reqpb interface{}, opts ...grpc.CallOption) (interface{}, error) {
+		for _, opt := range cliopts {
+			opts = append(opts, opt)
+		}
+		if reqpb != nil {
+			return grpccli.CreateNote(ctx, reqpb.(*calcpb.CreateNoteRequest), opts...)
+		}
+		return grpccli.CreateNote(ctx, &calcpb.CreateNoteRequest{}, opts...)
+	}
+}
+
+// EncodeCreateNoteRequest encodes requests sent to calc createNote endpoint.
+func EncodeCreateNoteRequest(ctx context.Context, v interface{}, md *metadata.MD) (interface{}, error) {
+	payload, ok := v.(*calc.CreateNotePayload)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "createNote", "*calc.CreateNotePayload", v)
+	}
+	return NewProtoCreateNoteRequest(payload), nil
+}
+
+// DecodeCreateNoteResponse decodes responses from the calc createNote endpoint.
+func DecodeCreateNoteResponse(ctx context.Context, v interface{}, hdr, trlr metadata.MD) (interface{}, error) {
+	message, ok := v.(*calcpb.CreateNoteResponse)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "createNote", "*calcpb.CreateNoteResponse", v)
+	}
+	res := NewCreateNoteResult(message)
+	return res, nil
+}

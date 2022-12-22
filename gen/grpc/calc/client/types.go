@@ -79,3 +79,47 @@ func NewDivideResult(message *calcpb.DivideResponse) float64 {
 	result := message.Field
 	return result
 }
+
+// NewProtoGetNotesRequest builds the gRPC request type from the payload of the
+// "getNotes" endpoint of the "calc" service.
+func NewProtoGetNotesRequest(payload *calc.GetNotesPayload) *calcpb.GetNotesRequest {
+	message := &calcpb.GetNotesRequest{
+		UserId: payload.UserID,
+	}
+	return message
+}
+
+// NewGetNotesResult builds the result type of the "getNotes" endpoint of the
+// "calc" service from the gRPC response type.
+func NewGetNotesResult(message *calcpb.GetNotesResponse) *calc.GetNotesResult {
+	result := &calc.GetNotesResult{}
+	if message.Notes != nil {
+		result.Notes = make([]*calc.Note, len(message.Notes))
+		for i, val := range message.Notes {
+			result.Notes[i] = &calc.Note{
+				Title: val.Title,
+				Body:  val.Body,
+			}
+		}
+	}
+	return result
+}
+
+// NewProtoCreateNoteRequest builds the gRPC request type from the payload of
+// the "createNote" endpoint of the "calc" service.
+func NewProtoCreateNoteRequest(payload *calc.CreateNotePayload) *calcpb.CreateNoteRequest {
+	message := &calcpb.CreateNoteRequest{
+		UserId: payload.UserID,
+	}
+	return message
+}
+
+// NewCreateNoteResult builds the result type of the "createNote" endpoint of
+// the "calc" service from the gRPC response type.
+func NewCreateNoteResult(message *calcpb.CreateNoteResponse) *calc.Note {
+	result := &calc.Note{
+		Title: message.Title,
+		Body:  message.Body,
+	}
+	return result
+}

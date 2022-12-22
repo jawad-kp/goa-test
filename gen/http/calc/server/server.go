@@ -23,6 +23,8 @@ type Server struct {
 	Add                http.Handler
 	Subtract           http.Handler
 	Divide             http.Handler
+	GetNotes           http.Handler
+	CreateNote         http.Handler
 	GenHTTPOpenapiJSON http.Handler
 }
 
@@ -61,12 +63,16 @@ func New(
 			{"Add", "GET", "/add/{a}/{b}"},
 			{"Subtract", "GET", "/subtract/{a}/{b}"},
 			{"Divide", "GET", "/divide/{a}/{b}"},
+			{"GetNotes", "GET", "/notes/{userID}"},
+			{"CreateNote", "POST", "/notes/{userID}"},
 			{"./gen/http/openapi.json", "GET", "/openapi.json"},
 		},
 		Multiply:           NewMultiplyHandler(e.Multiply, mux, decoder, encoder, errhandler, formatter),
 		Add:                NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
 		Subtract:           NewSubtractHandler(e.Subtract, mux, decoder, encoder, errhandler, formatter),
 		Divide:             NewDivideHandler(e.Divide, mux, decoder, encoder, errhandler, formatter),
+		GetNotes:           NewGetNotesHandler(e.GetNotes, mux, decoder, encoder, errhandler, formatter),
+		CreateNote:         NewCreateNoteHandler(e.CreateNote, mux, decoder, encoder, errhandler, formatter),
 		GenHTTPOpenapiJSON: http.FileServer(fileSystemGenHTTPOpenapiJSON),
 	}
 }
@@ -80,6 +86,8 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Add = m(s.Add)
 	s.Subtract = m(s.Subtract)
 	s.Divide = m(s.Divide)
+	s.GetNotes = m(s.GetNotes)
+	s.CreateNote = m(s.CreateNote)
 }
 
 // MethodNames returns the methods served.
@@ -91,6 +99,8 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
 	MountSubtractHandler(mux, h.Subtract)
 	MountDivideHandler(mux, h.Divide)
+	MountGetNotesHandler(mux, h.GetNotes)
+	MountCreateNoteHandler(mux, h.CreateNote)
 	MountGenHTTPOpenapiJSON(mux, goahttp.Replace("", "/./gen/http/openapi.json", h.GenHTTPOpenapiJSON))
 }
 
@@ -282,6 +292,108 @@ func NewDivideHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "divide")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountGetNotesHandler configures the mux to serve the "calc" service
+// "getNotes" endpoint.
+func MountGetNotesHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/notes/{userID}", f)
+}
+
+// NewGetNotesHandler creates a HTTP handler which loads the HTTP request and
+// calls the "calc" service "getNotes" endpoint.
+func NewGetNotesHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeGetNotesRequest(mux, decoder)
+		encodeResponse = EncodeGetNotesResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "getNotes")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountCreateNoteHandler configures the mux to serve the "calc" service
+// "createNote" endpoint.
+func MountCreateNoteHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/notes/{userID}", f)
+}
+
+// NewCreateNoteHandler creates a HTTP handler which loads the HTTP request and
+// calls the "calc" service "createNote" endpoint.
+func NewCreateNoteHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeCreateNoteRequest(mux, decoder)
+		encodeResponse = EncodeCreateNoteResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "createNote")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
 		payload, err := decodeRequest(r)
 		if err != nil {

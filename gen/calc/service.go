@@ -21,6 +21,10 @@ type Service interface {
 	Subtract(context.Context, *SubtractPayload) (res int, err error)
 	// Divide implements divide.
 	Divide(context.Context, *DividePayload) (res float64, err error)
+	// GetNotes implements getNotes.
+	GetNotes(context.Context, *GetNotesPayload) (res *GetNotesResult, err error)
+	// CreateNote implements createNote.
+	CreateNote(context.Context, *CreateNotePayload) (res *Note, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -31,7 +35,7 @@ const ServiceName = "calc"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [4]string{"multiply", "add", "subtract", "divide"}
+var MethodNames = [6]string{"multiply", "add", "subtract", "divide", "getNotes", "createNote"}
 
 // AddPayload is the payload type of the calc service add method.
 type AddPayload struct {
@@ -39,6 +43,12 @@ type AddPayload struct {
 	A int
 	// Right operand
 	B int
+}
+
+// CreateNotePayload is the payload type of the calc service createNote method.
+type CreateNotePayload struct {
+	// The Note to be saved
+	UserID string
 }
 
 // DividePayload is the payload type of the calc service divide method.
@@ -49,12 +59,32 @@ type DividePayload struct {
 	B int
 }
 
+// GetNotesPayload is the payload type of the calc service getNotes method.
+type GetNotesPayload struct {
+	// The email of the user
+	UserID string
+}
+
+// GetNotesResult is the result type of the calc service getNotes method.
+type GetNotesResult struct {
+	// list of notes
+	Notes []*Note
+}
+
 // MultiplyPayload is the payload type of the calc service multiply method.
 type MultiplyPayload struct {
 	// Left operand
 	A int
 	// Right operand
 	B int
+}
+
+// Note is the result type of the calc service createNote method.
+type Note struct {
+	// The title of the Note
+	Title *string
+	// The Body of the Note
+	Body *string
 }
 
 // SubtractPayload is the payload type of the calc service subtract method.

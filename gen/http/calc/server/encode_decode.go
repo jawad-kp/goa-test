@@ -9,6 +9,7 @@ package server
 
 import (
 	"context"
+	calc "goa-test/gen/calc"
 	"net/http"
 	"strconv"
 
@@ -206,4 +207,74 @@ func DecodeDivideRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 
 		return payload, nil
 	}
+}
+
+// EncodeGetNotesResponse returns an encoder for responses returned by the calc
+// getNotes endpoint.
+func EncodeGetNotesResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*calc.GetNotesResult)
+		enc := encoder(ctx, w)
+		body := NewGetNotesResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeGetNotesRequest returns a decoder for requests sent to the calc
+// getNotes endpoint.
+func DecodeGetNotesRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			userID string
+
+			params = mux.Vars(r)
+		)
+		userID = params["userID"]
+		payload := NewGetNotesPayload(userID)
+
+		return payload, nil
+	}
+}
+
+// EncodeCreateNoteResponse returns an encoder for responses returned by the
+// calc createNote endpoint.
+func EncodeCreateNoteResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*calc.Note)
+		enc := encoder(ctx, w)
+		body := NewCreateNoteResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeCreateNoteRequest returns a decoder for requests sent to the calc
+// createNote endpoint.
+func DecodeCreateNoteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			userID string
+
+			params = mux.Vars(r)
+		)
+		userID = params["userID"]
+		payload := NewCreateNotePayload(userID)
+
+		return payload, nil
+	}
+}
+
+// marshalCalcNoteToNoteResponseBody builds a value of type *NoteResponseBody
+// from a value of type *calc.Note.
+func marshalCalcNoteToNoteResponseBody(v *calc.Note) *NoteResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &NoteResponseBody{
+		Title: v.Title,
+		Body:  v.Body,
+	}
+
+	return res
 }

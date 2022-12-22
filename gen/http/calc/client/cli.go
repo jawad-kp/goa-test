@@ -127,3 +127,29 @@ func BuildDividePayload(calcDivideA string, calcDivideB string) (*calc.DividePay
 
 	return v, nil
 }
+
+// BuildGetNotesPayload builds the payload for the calc getNotes endpoint from
+// CLI flags.
+func BuildGetNotesPayload(calcGetNotesUserID string) (*calc.GetNotesPayload, error) {
+	var userID string
+	{
+		userID = calcGetNotesUserID
+	}
+	v := &calc.GetNotesPayload{}
+	v.UserID = userID
+
+	return v, nil
+}
+
+// BuildCreateNotePayload builds the payload for the calc createNote endpoint
+// from CLI flags.
+func BuildCreateNotePayload(calcCreateNoteUserID string) (*calc.CreateNotePayload, error) {
+	var userID string
+	{
+		userID = calcCreateNoteUserID
+	}
+	v := &calc.CreateNotePayload{}
+	v.UserID = userID
+
+	return v, nil
+}

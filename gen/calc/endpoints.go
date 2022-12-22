@@ -15,19 +15,23 @@ import (
 
 // Endpoints wraps the "calc" service endpoints.
 type Endpoints struct {
-	Multiply goa.Endpoint
-	Add      goa.Endpoint
-	Subtract goa.Endpoint
-	Divide   goa.Endpoint
+	Multiply   goa.Endpoint
+	Add        goa.Endpoint
+	Subtract   goa.Endpoint
+	Divide     goa.Endpoint
+	GetNotes   goa.Endpoint
+	CreateNote goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "calc" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
-		Multiply: NewMultiplyEndpoint(s),
-		Add:      NewAddEndpoint(s),
-		Subtract: NewSubtractEndpoint(s),
-		Divide:   NewDivideEndpoint(s),
+		Multiply:   NewMultiplyEndpoint(s),
+		Add:        NewAddEndpoint(s),
+		Subtract:   NewSubtractEndpoint(s),
+		Divide:     NewDivideEndpoint(s),
+		GetNotes:   NewGetNotesEndpoint(s),
+		CreateNote: NewCreateNoteEndpoint(s),
 	}
 }
 
@@ -37,6 +41,8 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Add = m(e.Add)
 	e.Subtract = m(e.Subtract)
 	e.Divide = m(e.Divide)
+	e.GetNotes = m(e.GetNotes)
+	e.CreateNote = m(e.CreateNote)
 }
 
 // NewMultiplyEndpoint returns an endpoint function that calls the method
@@ -72,5 +78,23 @@ func NewDivideEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*DividePayload)
 		return s.Divide(ctx, p)
+	}
+}
+
+// NewGetNotesEndpoint returns an endpoint function that calls the method
+// "getNotes" of service "calc".
+func NewGetNotesEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*GetNotesPayload)
+		return s.GetNotes(ctx, p)
+	}
+}
+
+// NewCreateNoteEndpoint returns an endpoint function that calls the method
+// "createNote" of service "calc".
+func NewCreateNoteEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*CreateNotePayload)
+		return s.CreateNote(ctx, p)
 	}
 }

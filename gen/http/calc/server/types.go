@@ -11,6 +11,53 @@ import (
 	calc "goa-test/gen/calc"
 )
 
+// GetNotesResponseBody is the type of the "calc" service "getNotes" endpoint
+// HTTP response body.
+type GetNotesResponseBody struct {
+	// list of notes
+	Notes []*NoteResponseBody `form:"notes,omitempty" json:"notes,omitempty" xml:"notes,omitempty"`
+}
+
+// CreateNoteResponseBody is the type of the "calc" service "createNote"
+// endpoint HTTP response body.
+type CreateNoteResponseBody struct {
+	// The title of the Note
+	Title *string `form:"Title,omitempty" json:"Title,omitempty" xml:"Title,omitempty"`
+	// The Body of the Note
+	Body *string `form:"Body,omitempty" json:"Body,omitempty" xml:"Body,omitempty"`
+}
+
+// NoteResponseBody is used to define fields on response body types.
+type NoteResponseBody struct {
+	// The title of the Note
+	Title *string `form:"Title,omitempty" json:"Title,omitempty" xml:"Title,omitempty"`
+	// The Body of the Note
+	Body *string `form:"Body,omitempty" json:"Body,omitempty" xml:"Body,omitempty"`
+}
+
+// NewGetNotesResponseBody builds the HTTP response body from the result of the
+// "getNotes" endpoint of the "calc" service.
+func NewGetNotesResponseBody(res *calc.GetNotesResult) *GetNotesResponseBody {
+	body := &GetNotesResponseBody{}
+	if res.Notes != nil {
+		body.Notes = make([]*NoteResponseBody, len(res.Notes))
+		for i, val := range res.Notes {
+			body.Notes[i] = marshalCalcNoteToNoteResponseBody(val)
+		}
+	}
+	return body
+}
+
+// NewCreateNoteResponseBody builds the HTTP response body from the result of
+// the "createNote" endpoint of the "calc" service.
+func NewCreateNoteResponseBody(res *calc.Note) *CreateNoteResponseBody {
+	body := &CreateNoteResponseBody{
+		Title: res.Title,
+		Body:  res.Body,
+	}
+	return body
+}
+
 // NewMultiplyPayload builds a calc service multiply endpoint payload.
 func NewMultiplyPayload(a int, b int) *calc.MultiplyPayload {
 	v := &calc.MultiplyPayload{}
@@ -43,6 +90,22 @@ func NewDividePayload(a int, b int) *calc.DividePayload {
 	v := &calc.DividePayload{}
 	v.A = a
 	v.B = b
+
+	return v
+}
+
+// NewGetNotesPayload builds a calc service getNotes endpoint payload.
+func NewGetNotesPayload(userID string) *calc.GetNotesPayload {
+	v := &calc.GetNotesPayload{}
+	v.UserID = userID
+
+	return v
+}
+
+// NewCreateNotePayload builds a calc service createNote endpoint payload.
+func NewCreateNotePayload(userID string) *calc.CreateNotePayload {
+	v := &calc.CreateNotePayload{}
+	v.UserID = userID
 
 	return v
 }

@@ -30,3 +30,13 @@ func SubtractCalcPath(a int, b int) string {
 func DivideCalcPath(a int, b int) string {
 	return fmt.Sprintf("/divide/%v/%v", a, b)
 }
+
+// GetNotesCalcPath returns the URL path to the calc service getNotes HTTP endpoint.
+func GetNotesCalcPath(userID string) string {
+	return fmt.Sprintf("/notes/%v", userID)
+}
+
+// CreateNoteCalcPath returns the URL path to the calc service createNote HTTP endpoint.
+func CreateNoteCalcPath(userID string) string {
+	return fmt.Sprintf("/notes/%v", userID)
+}

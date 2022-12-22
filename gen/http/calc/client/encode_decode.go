@@ -265,3 +265,139 @@ func DecodeDivideResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 		}
 	}
 }
+
+// BuildGetNotesRequest instantiates a HTTP request object with method and path
+// set to call the "calc" service "getNotes" endpoint
+func (c *Client) BuildGetNotesRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		userID string
+	)
+	{
+		p, ok := v.(*calc.GetNotesPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("calc", "getNotes", "*calc.GetNotesPayload", v)
+		}
+		userID = p.UserID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: GetNotesCalcPath(userID)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("calc", "getNotes", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeGetNotesResponse returns a decoder for responses returned by the calc
+// getNotes endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+func DecodeGetNotesResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body GetNotesResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "getNotes", err)
+			}
+			res := NewGetNotesResultOK(&body)
+			return res, nil
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("calc", "getNotes", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildCreateNoteRequest instantiates a HTTP request object with method and
+// path set to call the "calc" service "createNote" endpoint
+func (c *Client) BuildCreateNoteRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		userID string
+	)
+	{
+		p, ok := v.(*calc.CreateNotePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("calc", "createNote", "*calc.CreateNotePayload", v)
+		}
+		userID = p.UserID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: CreateNoteCalcPath(userID)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("calc", "createNote", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeCreateNoteResponse returns a decoder for responses returned by the
+// calc createNote endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+func DecodeCreateNoteResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body CreateNoteResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "createNote", err)
+			}
+			res := NewCreateNoteNoteOK(&body)
+			return res, nil
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("calc", "createNote", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// unmarshalNoteResponseBodyToCalcNote builds a value of type *calc.Note from a
+// value of type *NoteResponseBody.
+func unmarshalNoteResponseBodyToCalcNote(v *NoteResponseBody) *calc.Note {
+	if v == nil {
+		return nil
+	}
+	res := &calc.Note{
+		Title: v.Title,
+		Body:  v.Body,
+	}
+
+	return res
+}

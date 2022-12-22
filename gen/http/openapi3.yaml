@@ -20,9 +20,9 @@ paths:
                   schema:
                     type: integer
                     description: Left operand
-                    example: 3448989877641388488
+                    example: 2918713324217948082
                     format: int64
-                  example: 2788110747497692605
+                  example: 6487313515641330478
                 - name: b
                   in: path
                   description: Right operand
@@ -30,9 +30,9 @@ paths:
                   schema:
                     type: integer
                     description: Right operand
-                    example: 5305748056757514353
+                    example: 7083893185661257248
                     format: int64
-                  example: 6241407428951939308
+                  example: 6467796626875016509
             responses:
                 "200":
                     description: OK response.
@@ -40,9 +40,9 @@ paths:
                         application/json:
                             schema:
                                 type: integer
-                                example: 6518345420858817596
+                                example: 8178299472735997952
                                 format: int64
-                            example: 5920194056805489328
+                            example: 7509468512202955456
     /divide/{a}/{b}:
         get:
             tags:
@@ -57,9 +57,9 @@ paths:
                   schema:
                     type: integer
                     description: Left operand
-                    example: 6339444414280965279
+                    example: 9093376179136310938
                     format: int64
-                  example: 2998957498373416763
+                  example: 8851621330472964370
                 - name: b
                   in: path
                   description: Right operand
@@ -67,9 +67,9 @@ paths:
                   schema:
                     type: integer
                     description: Right operand
-                    example: 669093391323277721
+                    example: 8131166797256069893
                     format: int64
-                  example: 6850943989821012471
+                  example: 2303530046912946382
             responses:
                 "200":
                     description: OK response.
@@ -77,9 +77,9 @@ paths:
                         application/json:
                             schema:
                                 type: number
-                                example: 0.7412161214046652
+                                example: 0.8645843729954934
                                 format: double
-                            example: 0.22583267790728573
+                            example: 0.7436789905469807
     /multiply/{a}/{b}:
         get:
             tags:
@@ -94,9 +94,9 @@ paths:
                   schema:
                     type: integer
                     description: Left operand
-                    example: 7054049476353626766
+                    example: 4416510739546570040
                     format: int64
-                  example: 5570723899899913296
+                  example: 5088516426134668496
                 - name: b
                   in: path
                   description: Right operand
@@ -104,9 +104,9 @@ paths:
                   schema:
                     type: integer
                     description: Right operand
-                    example: 6513733567661029654
+                    example: 2817649694697734565
                     format: int64
-                  example: 862594352938458553
+                  example: 8220311738705198664
             responses:
                 "200":
                     description: OK response.
@@ -114,9 +114,63 @@ paths:
                         application/json:
                             schema:
                                 type: integer
-                                example: 4433681783854432708
+                                example: 5773275993975838914
                                 format: int64
-                            example: 7528159319778012238
+                            example: 7969322314291156173
+    /notes/{userID}:
+        get:
+            tags:
+                - calc
+            summary: getNotes calc
+            operationId: calc#getNotes
+            parameters:
+                - name: userID
+                  in: path
+                  description: The email of the user
+                  required: true
+                  schema:
+                    type: string
+                    description: The email of the user
+                    example: Fugit a nulla.
+                  example: Sed ut beatae sint illo quam.
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetNotesResponseBody'
+                            example:
+                                notes:
+                                    - Body: Quibusdam eius.
+                                      Title: Necessitatibus quis quasi est eum ad.
+                                    - Body: Quibusdam eius.
+                                      Title: Necessitatibus quis quasi est eum ad.
+        post:
+            tags:
+                - calc
+            summary: createNote calc
+            operationId: calc#createNote
+            parameters:
+                - name: userID
+                  in: path
+                  description: The Note to be saved
+                  required: true
+                  schema:
+                    type: string
+                    description: The Note to be saved
+                    example: Rerum est nostrum qui aut vero.
+                  example: Labore dolores eveniet.
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Note'
+                            example:
+                                Body: Non quod et facere.
+                                Title: Accusantium culpa odit eaque.
     /openapi.json:
         get:
             tags:
@@ -140,9 +194,9 @@ paths:
                   schema:
                     type: integer
                     description: Left operand
-                    example: 8052218409301066017
+                    example: 7526834330431756466
                     format: int64
-                  example: 2245842885737722152
+                  example: 4000321415748316517
                 - name: b
                   in: path
                   description: Right operand
@@ -150,9 +204,9 @@ paths:
                   schema:
                     type: integer
                     description: Right operand
-                    example: 3346131084553893015
+                    example: 2820419433035539482
                     format: int64
-                  example: 3122430129802868656
+                  example: 3028519962502007746
             responses:
                 "200":
                     description: OK response.
@@ -160,10 +214,48 @@ paths:
                         application/json:
                             schema:
                                 type: integer
-                                example: 3168435671144148080
+                                example: 6824313004707448740
                                 format: int64
-                            example: 5058434971892362792
-components: {}
+                            example: 7770762273010691493
+components:
+    schemas:
+        GetNotesResponseBody:
+            type: object
+            properties:
+                notes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Note'
+                    description: list of notes
+                    example:
+                        - Body: Quibusdam eius.
+                          Title: Necessitatibus quis quasi est eum ad.
+                        - Body: Quibusdam eius.
+                          Title: Necessitatibus quis quasi est eum ad.
+                        - Body: Quibusdam eius.
+                          Title: Necessitatibus quis quasi est eum ad.
+            example:
+                notes:
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+                    - Body: Quibusdam eius.
+                      Title: Necessitatibus quis quasi est eum ad.
+        Note:
+            type: object
+            properties:
+                Body:
+                    type: string
+                    description: The Body of the Note
+                    example: Velit consequuntur eum illum voluptatem possimus.
+                Title:
+                    type: string
+                    description: The title of the Note
+                    example: Omnis debitis voluptatum est enim possimus exercitationem.
+            example:
+                Body: Vero itaque.
+                Title: Excepturi et molestiae aperiam corporis dolore a.
 tags:
     - name: calc
       description: The calc service performs operations on numbers.

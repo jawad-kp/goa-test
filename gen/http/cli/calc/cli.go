@@ -22,13 +22,13 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `calc (multiply|add|subtract|divide)
+	return `calc (multiply|add|subtract|divide|get-notes|create-note)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` calc multiply --a 5401762099778430809 --b 1918630006328122782` + "\n" +
+	return os.Args[0] + ` calc multiply --a 8614350958614154271 --b 4285228716133201605` + "\n" +
 		""
 }
 
@@ -59,12 +59,20 @@ func ParseEndpoint(
 		calcDivideFlags = flag.NewFlagSet("divide", flag.ExitOnError)
 		calcDivideAFlag = calcDivideFlags.String("a", "REQUIRED", "Left operand")
 		calcDivideBFlag = calcDivideFlags.String("b", "REQUIRED", "Right operand")
+
+		calcGetNotesFlags      = flag.NewFlagSet("get-notes", flag.ExitOnError)
+		calcGetNotesUserIDFlag = calcGetNotesFlags.String("user-id", "REQUIRED", "The email of the user")
+
+		calcCreateNoteFlags      = flag.NewFlagSet("create-note", flag.ExitOnError)
+		calcCreateNoteUserIDFlag = calcCreateNoteFlags.String("user-id", "REQUIRED", "The Note to be saved")
 	)
 	calcFlags.Usage = calcUsage
 	calcMultiplyFlags.Usage = calcMultiplyUsage
 	calcAddFlags.Usage = calcAddUsage
 	calcSubtractFlags.Usage = calcSubtractUsage
 	calcDivideFlags.Usage = calcDivideUsage
+	calcGetNotesFlags.Usage = calcGetNotesUsage
+	calcCreateNoteFlags.Usage = calcCreateNoteUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -112,6 +120,12 @@ func ParseEndpoint(
 			case "divide":
 				epf = calcDivideFlags
 
+			case "get-notes":
+				epf = calcGetNotesFlags
+
+			case "create-note":
+				epf = calcCreateNoteFlags
+
 			}
 
 		}
@@ -149,6 +163,12 @@ func ParseEndpoint(
 			case "divide":
 				endpoint = c.Divide()
 				data, err = calcc.BuildDividePayload(*calcDivideAFlag, *calcDivideBFlag)
+			case "get-notes":
+				endpoint = c.GetNotes()
+				data, err = calcc.BuildGetNotesPayload(*calcGetNotesUserIDFlag)
+			case "create-note":
+				endpoint = c.CreateNote()
+				data, err = calcc.BuildCreateNotePayload(*calcCreateNoteUserIDFlag)
 			}
 		}
 	}
@@ -170,6 +190,8 @@ COMMAND:
     add: Add implements add.
     subtract: Subtract implements subtract.
     divide: Divide implements divide.
+    get-notes: GetNotes implements getNotes.
+    create-note: CreateNote implements createNote.
 
 Additional help:
     %[1]s calc COMMAND --help
@@ -183,7 +205,7 @@ Multiply implements multiply.
     -b INT: Right operand
 
 Example:
-    %[1]s calc multiply --a 5401762099778430809 --b 1918630006328122782
+    %[1]s calc multiply --a 8614350958614154271 --b 4285228716133201605
 `, os.Args[0])
 }
 
@@ -195,7 +217,7 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    %[1]s calc add --a 5855163322465186600 --b 1385266597691519195
+    %[1]s calc add --a 6595082841550375708 --b 3523480046783923250
 `, os.Args[0])
 }
 
@@ -207,7 +229,7 @@ Subtract implements subtract.
     -b INT: Right operand
 
 Example:
-    %[1]s calc subtract --a 7309877832173772408 --b 3237209857320107068
+    %[1]s calc subtract --a 4433681783854432708 --b 6518345420858817596
 `, os.Args[0])
 }
 
@@ -219,6 +241,28 @@ Divide implements divide.
     -b INT: Right operand
 
 Example:
-    %[1]s calc divide --a 9092197569596372935 --b 2937026320033011362
+    %[1]s calc divide --a 6513733567661029654 --b 862594352938458553
+`, os.Args[0])
+}
+
+func calcGetNotesUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc get-notes -user-id STRING
+
+GetNotes implements getNotes.
+    -user-id STRING: The email of the user
+
+Example:
+    %[1]s calc get-notes --user-id "Laboriosam et consequatur tempore ex quae."
+`, os.Args[0])
+}
+
+func calcCreateNoteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc create-note -user-id STRING
+
+CreateNote implements createNote.
+    -user-id STRING: The Note to be saved
+
+Example:
+    %[1]s calc create-note --user-id "Veritatis id iure."
 `, os.Args[0])
 }
