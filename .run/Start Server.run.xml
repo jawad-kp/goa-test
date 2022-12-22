@@ -2,6 +2,9 @@
   <configuration default="false" name="Start Server" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="goa-test" />
     <working_directory value="$PROJECT_DIR$" />
+    <envs>
+      <env name="CONFIG_FILE_PATH" value="..\config" />
+    </envs>
     <kind value="PACKAGE" />
     <package value="goa-test/cmd/calc" />
     <directory value="$PROJECT_DIR$" />
