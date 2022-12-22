@@ -7,7 +7,11 @@ import (
 )
 
 type MongoService struct {
-	collection mongo.Collection
+	collection *mongo.Collection
+}
+
+func NewMongoService(collection *mongo.Collection) *MongoService {
+	return &MongoService{collection: collection}
 }
 
 func (m MongoService) SaveNoteToDb(ctx context.Context, data *models.Note) (resp models.Note, err error) {
