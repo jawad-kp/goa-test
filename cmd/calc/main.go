@@ -4,7 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	calcapi "goa-test"
+	"goa-test/cmd/config"
+	"goa-test/db"
 	calc "goa-test/gen/calc"
 	"log"
 	"net"
@@ -37,11 +41,22 @@ func main() {
 	}
 
 	// Initialize the services.
+	var appConfig config.Config
+	err := config.LoadConfig(&appConfig)
+	if err != nil {
+		log.Print("Error loading config")
+		panic(err)
+	}
 	var (
 		calcSvc calc.Service
 	)
 	{
-		calcSvc = calcapi.NewCalc(logger)
+		coll, err := GetDBConnection(appConfig)
+		if err != nil {
+			log.Print("Failed to get DB Connection")
+			panic(err)
+		}
+		calcSvc = calcapi.NewCalc(logger, db.NewMongoService(coll))
 	}
 
 	// Wrap the services in endpoints that can be invoked from other services
@@ -131,4 +146,14 @@ func main() {
 
 	wg.Wait()
 	logger.Println("exited")
+}
+
+func GetDBConnection(appConfig config.Config) (*mongo.Collection, error) {
+	uri := fmt.Sprintf("mongodb://%s:%d", appConfig.DbConfig.Host, appConfig.DbConfig.Port)
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
+	if err != nil {
+		return nil, err
+	}
+	coll := client.Database(appConfig.DbConfig.Database).Collection(appConfig.DbConfig.Collection)
+	return coll, err
 }
