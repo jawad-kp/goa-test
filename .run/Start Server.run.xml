@@ -3,7 +3,7 @@
     <module name="goa-test" />
     <working_directory value="$PROJECT_DIR$" />
     <envs>
-      <env name="CONFIG_FILE_PATH" value="..\config" />
+      <env name="CONFIG_FILE_PATH" value="C:\Users\Jawad\Documents\goa-test\cmd\config\" />
     </envs>
     <kind value="PACKAGE" />
     <package value="goa-test/cmd/calc" />

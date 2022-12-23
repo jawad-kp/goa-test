@@ -142,6 +142,19 @@ func BuildGetNotesPayload(calcGetNotesUserID string) (*calc.GetNotesPayload, err
 	return v, nil
 }
 
+// BuildGetNotePayload builds the payload for the calc getNote endpoint from
+// CLI flags.
+func BuildGetNotePayload(calcGetNoteUUID string) (*calc.GetNotePayload, error) {
+	var uuid string
+	{
+		uuid = calcGetNoteUUID
+	}
+	v := &calc.GetNotePayload{}
+	v.UUID = uuid
+
+	return v, nil
+}
+
 // BuildCreateNotePayload builds the payload for the calc createNote endpoint
 // from CLI flags.
 func BuildCreateNotePayload(calcCreateNoteBody string, calcCreateNoteUserID string) (*calc.CreateNotePayload, error) {
@@ -150,19 +163,19 @@ func BuildCreateNotePayload(calcCreateNoteBody string, calcCreateNoteUserID stri
 	{
 		err = json.Unmarshal([]byte(calcCreateNoteBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"Body\": \"Accusantium culpa odit eaque.\",\n      \"Title\": \"Veritatis id iure.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"Body\": \"Quis consectetur voluptas.\",\n      \"Title\": \"Qui mollitia.\"\n   }'")
 		}
 	}
 	var userID string
 	{
 		userID = calcCreateNoteUserID
 	}
-	v := &calc.Note{
+	v := &calc.NoteDetails{
 		Title: body.Title,
 		Body:  body.Body,
 	}
 	res := &calc.CreateNotePayload{
-		Note: v,
+		NoteDetails: v,
 	}
 	res.UserID = userID
 

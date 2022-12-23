@@ -32,6 +32,8 @@ type CalcClient interface {
 	Divide(ctx context.Context, in *DivideRequest, opts ...grpc.CallOption) (*DivideResponse, error)
 	// GetNotes implements getNotes.
 	GetNotes(ctx context.Context, in *GetNotesRequest, opts ...grpc.CallOption) (*GetNotesResponse, error)
+	// GetNote implements getNote.
+	GetNote(ctx context.Context, in *GetNoteRequest, opts ...grpc.CallOption) (*GetNoteResponse, error)
 	// CreateNote implements createNote.
 	CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error)
 }
@@ -89,6 +91,15 @@ func (c *calcClient) GetNotes(ctx context.Context, in *GetNotesRequest, opts ...
 	return out, nil
 }
 
+func (c *calcClient) GetNote(ctx context.Context, in *GetNoteRequest, opts ...grpc.CallOption) (*GetNoteResponse, error) {
+	out := new(GetNoteResponse)
+	err := c.cc.Invoke(ctx, "/calc.Calc/GetNote", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *calcClient) CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error) {
 	out := new(CreateNoteResponse)
 	err := c.cc.Invoke(ctx, "/calc.Calc/CreateNote", in, out, opts...)
@@ -112,6 +123,8 @@ type CalcServer interface {
 	Divide(context.Context, *DivideRequest) (*DivideResponse, error)
 	// GetNotes implements getNotes.
 	GetNotes(context.Context, *GetNotesRequest) (*GetNotesResponse, error)
+	// GetNote implements getNote.
+	GetNote(context.Context, *GetNoteRequest) (*GetNoteResponse, error)
 	// CreateNote implements createNote.
 	CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error)
 	mustEmbedUnimplementedCalcServer()
@@ -135,6 +148,9 @@ func (UnimplementedCalcServer) Divide(context.Context, *DivideRequest) (*DivideR
 }
 func (UnimplementedCalcServer) GetNotes(context.Context, *GetNotesRequest) (*GetNotesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNotes not implemented")
+}
+func (UnimplementedCalcServer) GetNote(context.Context, *GetNoteRequest) (*GetNoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNote not implemented")
 }
 func (UnimplementedCalcServer) CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNote not implemented")
@@ -242,6 +258,24 @@ func _Calc_GetNotes_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Calc_GetNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CalcServer).GetNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/calc.Calc/GetNote",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CalcServer).GetNote(ctx, req.(*GetNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Calc_CreateNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateNoteRequest)
 	if err := dec(in); err != nil {
@@ -286,6 +320,10 @@ var Calc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNotes",
 			Handler:    _Calc_GetNotes_Handler,
+		},
+		{
+			MethodName: "GetNote",
+			Handler:    _Calc_GetNote_Handler,
 		},
 		{
 			MethodName: "CreateNote",

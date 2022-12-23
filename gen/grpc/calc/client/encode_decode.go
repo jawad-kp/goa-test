@@ -182,6 +182,39 @@ func DecodeGetNotesResponse(ctx context.Context, v interface{}, hdr, trlr metada
 	return res, nil
 }
 
+// BuildGetNoteFunc builds the remote method to invoke for "calc" service
+// "getNote" endpoint.
+func BuildGetNoteFunc(grpccli calcpb.CalcClient, cliopts ...grpc.CallOption) goagrpc.RemoteFunc {
+	return func(ctx context.Context, reqpb interface{}, opts ...grpc.CallOption) (interface{}, error) {
+		for _, opt := range cliopts {
+			opts = append(opts, opt)
+		}
+		if reqpb != nil {
+			return grpccli.GetNote(ctx, reqpb.(*calcpb.GetNoteRequest), opts...)
+		}
+		return grpccli.GetNote(ctx, &calcpb.GetNoteRequest{}, opts...)
+	}
+}
+
+// EncodeGetNoteRequest encodes requests sent to calc getNote endpoint.
+func EncodeGetNoteRequest(ctx context.Context, v interface{}, md *metadata.MD) (interface{}, error) {
+	payload, ok := v.(*calc.GetNotePayload)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "getNote", "*calc.GetNotePayload", v)
+	}
+	return NewGetNoteRequest(payload), nil
+}
+
+// DecodeGetNoteResponse decodes responses from the calc getNote endpoint.
+func DecodeGetNoteResponse(ctx context.Context, v interface{}, hdr, trlr metadata.MD) (interface{}, error) {
+	message, ok := v.(*calcpb.GetNoteResponse)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "getNote", "*calcpb.GetNoteResponse", v)
+	}
+	res := NewGetNoteResult(message)
+	return res, nil
+}
+
 // BuildCreateNoteFunc builds the remote method to invoke for "calc" service
 // "createNote" endpoint.
 func BuildCreateNoteFunc(grpccli calcpb.CalcClient, cliopts ...grpc.CallOption) goagrpc.RemoteFunc {
@@ -203,4 +236,17 @@ func EncodeCreateNoteRequest(ctx context.Context, v interface{}, md *metadata.MD
 		return nil, goagrpc.ErrInvalidType("calc", "createNote", "*calc.CreateNotePayload", v)
 	}
 	return NewCreateNoteRequest(payload), nil
+}
+
+// DecodeCreateNoteResponse decodes responses from the calc createNote endpoint.
+func DecodeCreateNoteResponse(ctx context.Context, v interface{}, hdr, trlr metadata.MD) (interface{}, error) {
+	message, ok := v.(*calcpb.CreateNoteResponse)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "createNote", "*calcpb.CreateNoteResponse", v)
+	}
+	if err := ValidateCreateNoteResponse(message); err != nil {
+		return nil, err
+	}
+	res := NewCreateNoteResult(message)
+	return res, nil
 }

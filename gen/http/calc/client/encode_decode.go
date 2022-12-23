@@ -294,6 +294,9 @@ func (c *Client) BuildGetNotesRequest(ctx context.Context, v interface{}) (*http
 // DecodeGetNotesResponse returns a decoder for responses returned by the calc
 // getNotes endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
+// DecodeGetNotesResponse may return the following errors:
+//   - "NoteMissing" (type *goa.ServiceError): http.StatusNotFound
+//   - error: internal error
 func DecodeGetNotesResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
 	return func(resp *http.Response) (interface{}, error) {
 		if restoreBody {
@@ -320,9 +323,101 @@ func DecodeGetNotesResponse(decoder func(*http.Response) goahttp.Decoder, restor
 			}
 			res := NewGetNotesResultOK(&body)
 			return res, nil
+		case http.StatusNotFound:
+			var (
+				body GetNotesNoteMissingResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "getNotes", err)
+			}
+			err = ValidateGetNotesNoteMissingResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("calc", "getNotes", err)
+			}
+			return nil, NewGetNotesNoteMissing(&body)
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("calc", "getNotes", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildGetNoteRequest instantiates a HTTP request object with method and path
+// set to call the "calc" service "getNote" endpoint
+func (c *Client) BuildGetNoteRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*calc.GetNotePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("calc", "getNote", "*calc.GetNotePayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: GetNoteCalcPath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("calc", "getNote", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeGetNoteResponse returns a decoder for responses returned by the calc
+// getNote endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeGetNoteResponse may return the following errors:
+//   - "NoteMissing" (type *goa.ServiceError): http.StatusNotFound
+//   - error: internal error
+func DecodeGetNoteResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body GetNoteResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "getNote", err)
+			}
+			res := NewGetNoteResultOK(&body)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body GetNoteNoteMissingResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "getNote", err)
+			}
+			err = ValidateGetNoteNoteMissingResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("calc", "getNote", err)
+			}
+			return nil, NewGetNoteNoteMissing(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("calc", "getNote", resp.StatusCode, string(body))
 		}
 	}
 }
@@ -390,7 +485,20 @@ func DecodeCreateNoteResponse(decoder func(*http.Response) goahttp.Decoder, rest
 		}
 		switch resp.StatusCode {
 		case http.StatusCreated:
-			return nil, nil
+			var (
+				body CreateNoteResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "createNote", err)
+			}
+			err = ValidateCreateNoteResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("calc", "createNote", err)
+			}
+			res := NewCreateNoteResultCreated(&body)
+			return res, nil
 		case http.StatusBadRequest:
 			var (
 				body CreateNoteBadRequestResponseBody
@@ -421,6 +529,17 @@ func unmarshalNoteResponseBodyToCalcNote(v *NoteResponseBody) *calc.Note {
 	res := &calc.Note{
 		Title: v.Title,
 		Body:  v.Body,
+		UUID:  v.UUID,
+	}
+
+	return res
+}
+
+// unmarshalNoteResponseResponseBodyToCalcNoteResponse builds a value of type
+// *calc.NoteResponse from a value of type *NoteResponseResponseBody.
+func unmarshalNoteResponseResponseBodyToCalcNoteResponse(v *NoteResponseResponseBody) *calc.NoteResponse {
+	res := &calc.NoteResponse{
+		UUID: v.UUID,
 	}
 
 	return res

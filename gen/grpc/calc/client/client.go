@@ -105,13 +105,28 @@ func (c *Client) GetNotes() goa.Endpoint {
 	}
 }
 
+// GetNote calls the "GetNote" function in calcpb.CalcClient interface.
+func (c *Client) GetNote() goa.Endpoint {
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		inv := goagrpc.NewInvoker(
+			BuildGetNoteFunc(c.grpccli, c.opts...),
+			EncodeGetNoteRequest,
+			DecodeGetNoteResponse)
+		res, err := inv.Invoke(ctx, v)
+		if err != nil {
+			return nil, goa.Fault(err.Error())
+		}
+		return res, nil
+	}
+}
+
 // CreateNote calls the "CreateNote" function in calcpb.CalcClient interface.
 func (c *Client) CreateNote() goa.Endpoint {
 	return func(ctx context.Context, v interface{}) (interface{}, error) {
 		inv := goagrpc.NewInvoker(
 			BuildCreateNoteFunc(c.grpccli, c.opts...),
 			EncodeCreateNoteRequest,
-			nil)
+			DecodeCreateNoteResponse)
 		res, err := inv.Invoke(ctx, v)
 		if err != nil {
 			return nil, goa.Fault(err.Error())

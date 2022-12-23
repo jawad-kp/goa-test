@@ -21,15 +21,15 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `calc (multiply|add|subtract|divide|get-notes|create-note)
+	return `calc (multiply|add|subtract|divide|get-notes|get-note|create-note)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` calc multiply --message '{
-      "a": 3546414149089559360,
-      "b": 1618669811688599017
+      "a": 5752212304782361938,
+      "b": 5269901698896315977
    }'` + "\n" +
 		""
 }
@@ -55,6 +55,9 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 		calcGetNotesFlags       = flag.NewFlagSet("get-notes", flag.ExitOnError)
 		calcGetNotesMessageFlag = calcGetNotesFlags.String("message", "", "")
 
+		calcGetNoteFlags       = flag.NewFlagSet("get-note", flag.ExitOnError)
+		calcGetNoteMessageFlag = calcGetNoteFlags.String("message", "", "")
+
 		calcCreateNoteFlags       = flag.NewFlagSet("create-note", flag.ExitOnError)
 		calcCreateNoteMessageFlag = calcCreateNoteFlags.String("message", "", "")
 	)
@@ -64,6 +67,7 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 	calcSubtractFlags.Usage = calcSubtractUsage
 	calcDivideFlags.Usage = calcDivideUsage
 	calcGetNotesFlags.Usage = calcGetNotesUsage
+	calcGetNoteFlags.Usage = calcGetNoteUsage
 	calcCreateNoteFlags.Usage = calcCreateNoteUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
@@ -115,6 +119,9 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 			case "get-notes":
 				epf = calcGetNotesFlags
 
+			case "get-note":
+				epf = calcGetNoteFlags
+
 			case "create-note":
 				epf = calcCreateNoteFlags
 
@@ -158,6 +165,9 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 			case "get-notes":
 				endpoint = c.GetNotes()
 				data, err = calcc.BuildGetNotesPayload(*calcGetNotesMessageFlag)
+			case "get-note":
+				endpoint = c.GetNote()
+				data, err = calcc.BuildGetNotePayload(*calcGetNoteMessageFlag)
 			case "create-note":
 				endpoint = c.CreateNote()
 				data, err = calcc.BuildCreateNotePayload(*calcCreateNoteMessageFlag)
@@ -183,6 +193,7 @@ COMMAND:
     subtract: Subtract implements subtract.
     divide: Divide implements divide.
     get-notes: GetNotes implements getNotes.
+    get-note: GetNote implements getNote.
     create-note: CreateNote implements createNote.
 
 Additional help:
@@ -197,8 +208,8 @@ Multiply implements multiply.
 
 Example:
     %[1]s calc multiply --message '{
-      "a": 3546414149089559360,
-      "b": 1618669811688599017
+      "a": 5752212304782361938,
+      "b": 5269901698896315977
    }'
 `, os.Args[0])
 }
@@ -211,8 +222,8 @@ Add implements add.
 
 Example:
     %[1]s calc add --message '{
-      "a": 4669454048700716669,
-      "b": 1294861662385682529
+      "a": 7047189229146369891,
+      "b": 3896950918919820613
    }'
 `, os.Args[0])
 }
@@ -225,8 +236,8 @@ Subtract implements subtract.
 
 Example:
     %[1]s calc subtract --message '{
-      "a": 2574101197078288820,
-      "b": 9032300625042805317
+      "a": 460832770702694527,
+      "b": 3464015629245697118
    }'
 `, os.Args[0])
 }
@@ -239,8 +250,8 @@ Divide implements divide.
 
 Example:
     %[1]s calc divide --message '{
-      "a": 6480680201785989957,
-      "b": 577828123511009763
+      "a": 2105883920431331421,
+      "b": 9040457143694300258
    }'
 `, os.Args[0])
 }
@@ -253,7 +264,20 @@ GetNotes implements getNotes.
 
 Example:
     %[1]s calc get-notes --message '{
-      "userID": "Voluptas sed neque consequatur maiores aut sed."
+      "userID": "Nihil odit iusto vitae."
+   }'
+`, os.Args[0])
+}
+
+func calcGetNoteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc get-note -message JSON
+
+GetNote implements getNote.
+    -message JSON: 
+
+Example:
+    %[1]s calc get-note --message '{
+      "uuid": "Veritatis voluptas atque labore at fuga."
    }'
 `, os.Args[0])
 }
@@ -266,11 +290,11 @@ CreateNote implements createNote.
 
 Example:
     %[1]s calc create-note --message '{
-      "Note": {
-         "Body": "Voluptatem mollitia placeat tenetur qui.",
-         "Title": "Error ullam eius odio minima."
+      "NoteDetails": {
+         "Body": "Ut itaque sit corrupti velit.",
+         "Title": "Non et."
       },
-      "userID": "Quis dolorum corporis officiis rerum."
+      "userID": "Aliquam vel facilis."
    }'
 `, os.Args[0])
 }

@@ -23,6 +23,8 @@ service Calc {
 	rpc Divide (DivideRequest) returns (DivideResponse);
 	// GetNotes implements getNotes.
 	rpc GetNotes (GetNotesRequest) returns (GetNotesResponse);
+	// GetNote implements getNote.
+	rpc GetNote (GetNoteRequest) returns (GetNoteResponse);
 	// CreateNote implements createNote.
 	rpc CreateNote (CreateNoteRequest) returns (CreateNoteResponse);
 }
@@ -86,14 +88,40 @@ message Note {
 	string title = 1;
 	// The Body of the Note
 	string body = 2;
+	// The UUID of the created note
+	string uuid = 3;
+}
+
+message GetNoteRequest {
+	// The note's UUID
+	string uuid = 1;
+}
+
+message GetNoteResponse {
+	// The note matching the UUID
+	Note note = 1;
 }
 
 message CreateNoteRequest {
 	// The UserID for the note
 	string user_id = 1;
 	// The Note data to be saved
-	Note note = 2;
+	NoteDetails note_details = 2;
+}
+
+message NoteDetails {
+	// The title of the Note
+	string title = 1;
+	// The Body of the Note
+	string body = 2;
 }
 
 message CreateNoteResponse {
+	// The Created Note
+	NoteResponse note_response = 1;
+}
+
+message NoteResponse {
+	// The UUID of the Created Note
+	string uuid = 1;
 }

@@ -22,13 +22,13 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `calc (multiply|add|subtract|divide|get-notes|create-note)
+	return `calc (multiply|add|subtract|divide|get-notes|get-note|create-note)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` calc multiply --a 8614350958614154271 --b 4285228716133201605` + "\n" +
+	return os.Args[0] + ` calc multiply --a 2788110747497692605 --b 5305748056757514353` + "\n" +
 		""
 }
 
@@ -63,6 +63,9 @@ func ParseEndpoint(
 		calcGetNotesFlags      = flag.NewFlagSet("get-notes", flag.ExitOnError)
 		calcGetNotesUserIDFlag = calcGetNotesFlags.String("user-id", "REQUIRED", "The email of the user")
 
+		calcGetNoteFlags    = flag.NewFlagSet("get-note", flag.ExitOnError)
+		calcGetNoteUUIDFlag = calcGetNoteFlags.String("uuid", "REQUIRED", "The note's UUID")
+
 		calcCreateNoteFlags      = flag.NewFlagSet("create-note", flag.ExitOnError)
 		calcCreateNoteBodyFlag   = calcCreateNoteFlags.String("body", "REQUIRED", "")
 		calcCreateNoteUserIDFlag = calcCreateNoteFlags.String("user-id", "REQUIRED", "The UserID for the note")
@@ -73,6 +76,7 @@ func ParseEndpoint(
 	calcSubtractFlags.Usage = calcSubtractUsage
 	calcDivideFlags.Usage = calcDivideUsage
 	calcGetNotesFlags.Usage = calcGetNotesUsage
+	calcGetNoteFlags.Usage = calcGetNoteUsage
 	calcCreateNoteFlags.Usage = calcCreateNoteUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
@@ -124,6 +128,9 @@ func ParseEndpoint(
 			case "get-notes":
 				epf = calcGetNotesFlags
 
+			case "get-note":
+				epf = calcGetNoteFlags
+
 			case "create-note":
 				epf = calcCreateNoteFlags
 
@@ -167,6 +174,9 @@ func ParseEndpoint(
 			case "get-notes":
 				endpoint = c.GetNotes()
 				data, err = calcc.BuildGetNotesPayload(*calcGetNotesUserIDFlag)
+			case "get-note":
+				endpoint = c.GetNote()
+				data, err = calcc.BuildGetNotePayload(*calcGetNoteUUIDFlag)
 			case "create-note":
 				endpoint = c.CreateNote()
 				data, err = calcc.BuildCreateNotePayload(*calcCreateNoteBodyFlag, *calcCreateNoteUserIDFlag)
@@ -192,6 +202,7 @@ COMMAND:
     subtract: Subtract implements subtract.
     divide: Divide implements divide.
     get-notes: GetNotes implements getNotes.
+    get-note: GetNote implements getNote.
     create-note: CreateNote implements createNote.
 
 Additional help:
@@ -206,7 +217,7 @@ Multiply implements multiply.
     -b INT: Right operand
 
 Example:
-    %[1]s calc multiply --a 8614350958614154271 --b 4285228716133201605
+    %[1]s calc multiply --a 2788110747497692605 --b 5305748056757514353
 `, os.Args[0])
 }
 
@@ -218,7 +229,7 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    %[1]s calc add --a 6595082841550375708 --b 3523480046783923250
+    %[1]s calc add --a 3346131084553893015 --b 3122430129802868656
 `, os.Args[0])
 }
 
@@ -230,7 +241,7 @@ Subtract implements subtract.
     -b INT: Right operand
 
 Example:
-    %[1]s calc subtract --a 4433681783854432708 --b 6518345420858817596
+    %[1]s calc subtract --a 6850943989821012471 --b 2082938806418090480
 `, os.Args[0])
 }
 
@@ -242,7 +253,7 @@ Divide implements divide.
     -b INT: Right operand
 
 Example:
-    %[1]s calc divide --a 6513733567661029654 --b 862594352938458553
+    %[1]s calc divide --a 2403877865146434878 --b 1176453865776169456
 `, os.Args[0])
 }
 
@@ -253,7 +264,18 @@ GetNotes implements getNotes.
     -user-id STRING: The email of the user
 
 Example:
-    %[1]s calc get-notes --user-id "Laboriosam et consequatur tempore ex quae."
+    %[1]s calc get-notes --user-id "Consectetur excepturi eaque omnis veritatis."
+`, os.Args[0])
+}
+
+func calcGetNoteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc get-note -uuid STRING
+
+GetNote implements getNote.
+    -uuid STRING: The note's UUID
+
+Example:
+    %[1]s calc get-note --uuid "Rerum ipsam eveniet consequatur omnis velit."
 `, os.Args[0])
 }
 
@@ -266,8 +288,8 @@ CreateNote implements createNote.
 
 Example:
     %[1]s calc create-note --body '{
-      "Body": "Accusantium culpa odit eaque.",
-      "Title": "Veritatis id iure."
-   }' --user-id "Non quod et facere."
+      "Body": "Quis consectetur voluptas.",
+      "Title": "Qui mollitia."
+   }' --user-id "Neque consequatur maiores aut."
 `, os.Args[0])
 }

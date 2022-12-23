@@ -20,6 +20,7 @@ type Endpoints struct {
 	Subtract   goa.Endpoint
 	Divide     goa.Endpoint
 	GetNotes   goa.Endpoint
+	GetNote    goa.Endpoint
 	CreateNote goa.Endpoint
 }
 
@@ -31,6 +32,7 @@ func NewEndpoints(s Service) *Endpoints {
 		Subtract:   NewSubtractEndpoint(s),
 		Divide:     NewDivideEndpoint(s),
 		GetNotes:   NewGetNotesEndpoint(s),
+		GetNote:    NewGetNoteEndpoint(s),
 		CreateNote: NewCreateNoteEndpoint(s),
 	}
 }
@@ -42,6 +44,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Subtract = m(e.Subtract)
 	e.Divide = m(e.Divide)
 	e.GetNotes = m(e.GetNotes)
+	e.GetNote = m(e.GetNote)
 	e.CreateNote = m(e.CreateNote)
 }
 
@@ -90,11 +93,20 @@ func NewGetNotesEndpoint(s Service) goa.Endpoint {
 	}
 }
 
+// NewGetNoteEndpoint returns an endpoint function that calls the method
+// "getNote" of service "calc".
+func NewGetNoteEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*GetNotePayload)
+		return s.GetNote(ctx, p)
+	}
+}
+
 // NewCreateNoteEndpoint returns an endpoint function that calls the method
 // "createNote" of service "calc".
 func NewCreateNoteEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*CreateNotePayload)
-		return nil, s.CreateNote(ctx, p)
+		return s.CreateNote(ctx, p)
 	}
 }

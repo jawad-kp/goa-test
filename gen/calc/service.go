@@ -25,8 +25,10 @@ type Service interface {
 	Divide(context.Context, *DividePayload) (res float64, err error)
 	// GetNotes implements getNotes.
 	GetNotes(context.Context, *GetNotesPayload) (res *GetNotesResult, err error)
+	// GetNote implements getNote.
+	GetNote(context.Context, *GetNotePayload) (res *GetNoteResult, err error)
 	// CreateNote implements createNote.
-	CreateNote(context.Context, *CreateNotePayload) (err error)
+	CreateNote(context.Context, *CreateNotePayload) (res *CreateNoteResult, err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -37,7 +39,7 @@ const ServiceName = "calc"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [6]string{"multiply", "add", "subtract", "divide", "getNotes", "createNote"}
+var MethodNames = [7]string{"multiply", "add", "subtract", "divide", "getNotes", "getNote", "createNote"}
 
 // MultiplyPayload is the payload type of the calc service multiply method.
 type MultiplyPayload struct {
@@ -83,12 +85,30 @@ type GetNotesResult struct {
 	Notes []*Note
 }
 
+// GetNotePayload is the payload type of the calc service getNote method.
+type GetNotePayload struct {
+	// The note's UUID
+	UUID string
+}
+
+// GetNoteResult is the result type of the calc service getNote method.
+type GetNoteResult struct {
+	// The note matching the UUID
+	Note *Note
+}
+
 // CreateNotePayload is the payload type of the calc service createNote method.
 type CreateNotePayload struct {
 	// The UserID for the note
 	UserID string
 	// The Note data to be saved
-	Note *Note
+	NoteDetails *NoteDetails
+}
+
+// CreateNoteResult is the result type of the calc service createNote method.
+type CreateNoteResult struct {
+	// The Created Note
+	NoteResponse *NoteResponse
 }
 
 type Note struct {
@@ -96,6 +116,29 @@ type Note struct {
 	Title *string
 	// The Body of the Note
 	Body *string
+	// The UUID of the created note
+	UUID *string
+}
+
+type NoteDetails struct {
+	// The title of the Note
+	Title *string
+	// The Body of the Note
+	Body *string
+}
+
+type NoteResponse struct {
+	// The UUID of the Created Note
+	UUID *string
+}
+
+// MakeNoteMissing builds a goa.ServiceError from an error.
+func MakeNoteMissing(err error) *goa.ServiceError {
+	return &goa.ServiceError{
+		Name:    "NoteMissing",
+		ID:      goa.NewErrorID(),
+		Message: err.Error(),
+	}
 }
 
 // MakeBadRequest builds a goa.ServiceError from an error.

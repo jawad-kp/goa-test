@@ -10,6 +10,8 @@ package client
 import (
 	calc "goa-test/gen/calc"
 	calcpb "goa-test/gen/grpc/calc/pb"
+
+	goa "goa.design/goa/v3/pkg"
 )
 
 // NewMultiplyRequest builds the gRPC request type from the payload of the
@@ -103,7 +105,29 @@ func NewGetNotesResult(message *calcpb.GetNotesResponse) *calc.GetNotesResult {
 			if val.Body != "" {
 				result.Notes[i].Body = &val.Body
 			}
+			if val.Uuid != "" {
+				result.Notes[i].UUID = &val.Uuid
+			}
 		}
+	}
+	return result
+}
+
+// NewGetNoteRequest builds the gRPC request type from the payload of the
+// "getNote" endpoint of the "calc" service.
+func NewGetNoteRequest(payload *calc.GetNotePayload) *calcpb.GetNoteRequest {
+	message := &calcpb.GetNoteRequest{
+		Uuid: payload.UUID,
+	}
+	return message
+}
+
+// NewGetNoteResult builds the result type of the "getNote" endpoint of the
+// "calc" service from the gRPC response type.
+func NewGetNoteResult(message *calcpb.GetNoteResponse) *calc.GetNoteResult {
+	result := &calc.GetNoteResult{}
+	if message.Note != nil {
+		result.Note = protobufCalcpbNoteToCalcNote(message.Note)
 	}
 	return result
 }
@@ -114,10 +138,55 @@ func NewCreateNoteRequest(payload *calc.CreateNotePayload) *calcpb.CreateNoteReq
 	message := &calcpb.CreateNoteRequest{
 		UserId: payload.UserID,
 	}
-	if payload.Note != nil {
-		message.Note = svcCalcNoteToCalcpbNote(payload.Note)
+	if payload.NoteDetails != nil {
+		message.NoteDetails = svcCalcNoteDetailsToCalcpbNoteDetails(payload.NoteDetails)
 	}
 	return message
+}
+
+// NewCreateNoteResult builds the result type of the "createNote" endpoint of
+// the "calc" service from the gRPC response type.
+func NewCreateNoteResult(message *calcpb.CreateNoteResponse) *calc.CreateNoteResult {
+	result := &calc.CreateNoteResult{}
+	if message.NoteResponse != nil {
+		result.NoteResponse = protobufCalcpbNoteResponseToCalcNoteResponse(message.NoteResponse)
+	}
+	return result
+}
+
+// ValidateCreateNoteResponse runs the validations defined on
+// CreateNoteResponse.
+func ValidateCreateNoteResponse(message *calcpb.CreateNoteResponse) (err error) {
+	if message.NoteResponse == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("NoteResponse", "message"))
+	}
+	return
+}
+
+// ValidateNoteResponse runs the validations defined on NoteResponse.
+func ValidateNoteResponse(message *calcpb.NoteResponse) (err error) {
+
+	return
+}
+
+// svcCalcNoteToCalcpbNote builds a value of type *calcpb.Note from a value of
+// type *calc.Note.
+func svcCalcNoteToCalcpbNote(v *calc.Note) *calcpb.Note {
+	if v == nil {
+		return nil
+	}
+	res := &calcpb.Note{}
+	if v.Title != nil {
+		res.Title = *v.Title
+	}
+	if v.Body != nil {
+		res.Body = *v.Body
+	}
+	if v.UUID != nil {
+		res.Uuid = *v.UUID
+	}
+
+	return res
 }
 
 // protobufCalcpbNoteToCalcNote builds a value of type *calc.Note from a value
@@ -133,22 +202,64 @@ func protobufCalcpbNoteToCalcNote(v *calcpb.Note) *calc.Note {
 	if v.Body != "" {
 		res.Body = &v.Body
 	}
+	if v.Uuid != "" {
+		res.UUID = &v.Uuid
+	}
 
 	return res
 }
 
-// svcCalcNoteToCalcpbNote builds a value of type *calcpb.Note from a value of
-// type *calc.Note.
-func svcCalcNoteToCalcpbNote(v *calc.Note) *calcpb.Note {
+// protobufCalcpbNoteDetailsToCalcNoteDetails builds a value of type
+// *calc.NoteDetails from a value of type *calcpb.NoteDetails.
+func protobufCalcpbNoteDetailsToCalcNoteDetails(v *calcpb.NoteDetails) *calc.NoteDetails {
 	if v == nil {
 		return nil
 	}
-	res := &calcpb.Note{}
+	res := &calc.NoteDetails{}
+	if v.Title != "" {
+		res.Title = &v.Title
+	}
+	if v.Body != "" {
+		res.Body = &v.Body
+	}
+
+	return res
+}
+
+// svcCalcNoteDetailsToCalcpbNoteDetails builds a value of type
+// *calcpb.NoteDetails from a value of type *calc.NoteDetails.
+func svcCalcNoteDetailsToCalcpbNoteDetails(v *calc.NoteDetails) *calcpb.NoteDetails {
+	if v == nil {
+		return nil
+	}
+	res := &calcpb.NoteDetails{}
 	if v.Title != nil {
 		res.Title = *v.Title
 	}
 	if v.Body != nil {
 		res.Body = *v.Body
+	}
+
+	return res
+}
+
+// svcCalcNoteResponseToCalcpbNoteResponse builds a value of type
+// *calcpb.NoteResponse from a value of type *calc.NoteResponse.
+func svcCalcNoteResponseToCalcpbNoteResponse(v *calc.NoteResponse) *calcpb.NoteResponse {
+	res := &calcpb.NoteResponse{}
+	if v.UUID != nil {
+		res.Uuid = *v.UUID
+	}
+
+	return res
+}
+
+// protobufCalcpbNoteResponseToCalcNoteResponse builds a value of type
+// *calc.NoteResponse from a value of type *calcpb.NoteResponse.
+func protobufCalcpbNoteResponseToCalcNoteResponse(v *calcpb.NoteResponse) *calc.NoteResponse {
+	res := &calc.NoteResponse{}
+	if v.Uuid != "" {
+		res.UUID = &v.Uuid
 	}
 
 	return res

@@ -107,7 +107,29 @@ func NewGetNotesResponse(result *calc.GetNotesResult) *calcpb.GetNotesResponse {
 			if val.Body != nil {
 				message.Notes[i].Body = *val.Body
 			}
+			if val.UUID != nil {
+				message.Notes[i].Uuid = *val.UUID
+			}
 		}
+	}
+	return message
+}
+
+// NewGetNotePayload builds the payload of the "getNote" endpoint of the "calc"
+// service from the gRPC request type.
+func NewGetNotePayload(message *calcpb.GetNoteRequest) *calc.GetNotePayload {
+	v := &calc.GetNotePayload{
+		UUID: message.Uuid,
+	}
+	return v
+}
+
+// NewGetNoteResponse builds the gRPC response type from the result of the
+// "getNote" endpoint of the "calc" service.
+func NewGetNoteResponse(result *calc.GetNoteResult) *calcpb.GetNoteResponse {
+	message := &calcpb.GetNoteResponse{}
+	if result.Note != nil {
+		message.Note = svcCalcNoteToCalcpbNote(result.Note)
 	}
 	return message
 }
@@ -118,17 +140,40 @@ func NewCreateNotePayload(message *calcpb.CreateNoteRequest) *calc.CreateNotePay
 	v := &calc.CreateNotePayload{
 		UserID: message.UserId,
 	}
-	if message.Note != nil {
-		v.Note = protobufCalcpbNoteToCalcNote(message.Note)
+	if message.NoteDetails != nil {
+		v.NoteDetails = protobufCalcpbNoteDetailsToCalcNoteDetails(message.NoteDetails)
 	}
 	return v
 }
 
 // NewCreateNoteResponse builds the gRPC response type from the result of the
 // "createNote" endpoint of the "calc" service.
-func NewCreateNoteResponse() *calcpb.CreateNoteResponse {
+func NewCreateNoteResponse(result *calc.CreateNoteResult) *calcpb.CreateNoteResponse {
 	message := &calcpb.CreateNoteResponse{}
+	if result.NoteResponse != nil {
+		message.NoteResponse = svcCalcNoteResponseToCalcpbNoteResponse(result.NoteResponse)
+	}
 	return message
+}
+
+// svcCalcNoteToCalcpbNote builds a value of type *calcpb.Note from a value of
+// type *calc.Note.
+func svcCalcNoteToCalcpbNote(v *calc.Note) *calcpb.Note {
+	if v == nil {
+		return nil
+	}
+	res := &calcpb.Note{}
+	if v.Title != nil {
+		res.Title = *v.Title
+	}
+	if v.Body != nil {
+		res.Body = *v.Body
+	}
+	if v.UUID != nil {
+		res.Uuid = *v.UUID
+	}
+
+	return res
 }
 
 // protobufCalcpbNoteToCalcNote builds a value of type *calc.Note from a value
@@ -144,22 +189,64 @@ func protobufCalcpbNoteToCalcNote(v *calcpb.Note) *calc.Note {
 	if v.Body != "" {
 		res.Body = &v.Body
 	}
+	if v.Uuid != "" {
+		res.UUID = &v.Uuid
+	}
 
 	return res
 }
 
-// svcCalcNoteToCalcpbNote builds a value of type *calcpb.Note from a value of
-// type *calc.Note.
-func svcCalcNoteToCalcpbNote(v *calc.Note) *calcpb.Note {
+// protobufCalcpbNoteDetailsToCalcNoteDetails builds a value of type
+// *calc.NoteDetails from a value of type *calcpb.NoteDetails.
+func protobufCalcpbNoteDetailsToCalcNoteDetails(v *calcpb.NoteDetails) *calc.NoteDetails {
 	if v == nil {
 		return nil
 	}
-	res := &calcpb.Note{}
+	res := &calc.NoteDetails{}
+	if v.Title != "" {
+		res.Title = &v.Title
+	}
+	if v.Body != "" {
+		res.Body = &v.Body
+	}
+
+	return res
+}
+
+// svcCalcNoteDetailsToCalcpbNoteDetails builds a value of type
+// *calcpb.NoteDetails from a value of type *calc.NoteDetails.
+func svcCalcNoteDetailsToCalcpbNoteDetails(v *calc.NoteDetails) *calcpb.NoteDetails {
+	if v == nil {
+		return nil
+	}
+	res := &calcpb.NoteDetails{}
 	if v.Title != nil {
 		res.Title = *v.Title
 	}
 	if v.Body != nil {
 		res.Body = *v.Body
+	}
+
+	return res
+}
+
+// svcCalcNoteResponseToCalcpbNoteResponse builds a value of type
+// *calcpb.NoteResponse from a value of type *calc.NoteResponse.
+func svcCalcNoteResponseToCalcpbNoteResponse(v *calc.NoteResponse) *calcpb.NoteResponse {
+	res := &calcpb.NoteResponse{}
+	if v.UUID != nil {
+		res.Uuid = *v.UUID
+	}
+
+	return res
+}
+
+// protobufCalcpbNoteResponseToCalcNoteResponse builds a value of type
+// *calc.NoteResponse from a value of type *calcpb.NoteResponse.
+func protobufCalcpbNoteResponseToCalcNoteResponse(v *calcpb.NoteResponse) *calc.NoteResponse {
+	res := &calc.NoteResponse{}
+	if v.Uuid != "" {
+		res.UUID = &v.Uuid
 	}
 
 	return res

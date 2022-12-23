@@ -29,6 +29,56 @@ type GetNotesResponseBody struct {
 	Notes []*NoteResponseBody `form:"notes,omitempty" json:"notes,omitempty" xml:"notes,omitempty"`
 }
 
+// GetNoteResponseBody is the type of the "calc" service "getNote" endpoint
+// HTTP response body.
+type GetNoteResponseBody struct {
+	// The note matching the UUID
+	Note *NoteResponseBody `form:"Note,omitempty" json:"Note,omitempty" xml:"Note,omitempty"`
+}
+
+// CreateNoteResponseBody is the type of the "calc" service "createNote"
+// endpoint HTTP response body.
+type CreateNoteResponseBody struct {
+	// The Created Note
+	NoteResponse *NoteResponseResponseBody `form:"NoteResponse" json:"NoteResponse" xml:"NoteResponse"`
+}
+
+// GetNotesNoteMissingResponseBody is the type of the "calc" service "getNotes"
+// endpoint HTTP response body for the "NoteMissing" error.
+type GetNotesNoteMissingResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// GetNoteNoteMissingResponseBody is the type of the "calc" service "getNote"
+// endpoint HTTP response body for the "NoteMissing" error.
+type GetNoteNoteMissingResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // CreateNoteBadRequestResponseBody is the type of the "calc" service
 // "createNote" endpoint HTTP response body for the "BadRequest" error.
 type CreateNoteBadRequestResponseBody struct {
@@ -53,6 +103,14 @@ type NoteResponseBody struct {
 	Title *string `form:"Title,omitempty" json:"Title,omitempty" xml:"Title,omitempty"`
 	// The Body of the Note
 	Body *string `form:"Body,omitempty" json:"Body,omitempty" xml:"Body,omitempty"`
+	// The UUID of the created note
+	UUID *string `form:"UUID,omitempty" json:"UUID,omitempty" xml:"UUID,omitempty"`
+}
+
+// NoteResponseResponseBody is used to define fields on response body types.
+type NoteResponseResponseBody struct {
+	// The UUID of the Created Note
+	UUID *string `form:"UUID,omitempty" json:"UUID,omitempty" xml:"UUID,omitempty"`
 }
 
 // NewGetNotesResponseBody builds the HTTP response body from the result of the
@@ -64,6 +122,54 @@ func NewGetNotesResponseBody(res *calc.GetNotesResult) *GetNotesResponseBody {
 		for i, val := range res.Notes {
 			body.Notes[i] = marshalCalcNoteToNoteResponseBody(val)
 		}
+	}
+	return body
+}
+
+// NewGetNoteResponseBody builds the HTTP response body from the result of the
+// "getNote" endpoint of the "calc" service.
+func NewGetNoteResponseBody(res *calc.GetNoteResult) *GetNoteResponseBody {
+	body := &GetNoteResponseBody{}
+	if res.Note != nil {
+		body.Note = marshalCalcNoteToNoteResponseBody(res.Note)
+	}
+	return body
+}
+
+// NewCreateNoteResponseBody builds the HTTP response body from the result of
+// the "createNote" endpoint of the "calc" service.
+func NewCreateNoteResponseBody(res *calc.CreateNoteResult) *CreateNoteResponseBody {
+	body := &CreateNoteResponseBody{}
+	if res.NoteResponse != nil {
+		body.NoteResponse = marshalCalcNoteResponseToNoteResponseResponseBody(res.NoteResponse)
+	}
+	return body
+}
+
+// NewGetNotesNoteMissingResponseBody builds the HTTP response body from the
+// result of the "getNotes" endpoint of the "calc" service.
+func NewGetNotesNoteMissingResponseBody(res *goa.ServiceError) *GetNotesNoteMissingResponseBody {
+	body := &GetNotesNoteMissingResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewGetNoteNoteMissingResponseBody builds the HTTP response body from the
+// result of the "getNote" endpoint of the "calc" service.
+func NewGetNoteNoteMissingResponseBody(res *goa.ServiceError) *GetNoteNoteMissingResponseBody {
+	body := &GetNoteNoteMissingResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }
@@ -126,14 +232,22 @@ func NewGetNotesPayload(userID string) *calc.GetNotesPayload {
 	return v
 }
 
+// NewGetNotePayload builds a calc service getNote endpoint payload.
+func NewGetNotePayload(uuid string) *calc.GetNotePayload {
+	v := &calc.GetNotePayload{}
+	v.UUID = uuid
+
+	return v
+}
+
 // NewCreateNotePayload builds a calc service createNote endpoint payload.
 func NewCreateNotePayload(body *CreateNoteRequestBody, userID string) *calc.CreateNotePayload {
-	v := &calc.Note{
+	v := &calc.NoteDetails{
 		Title: body.Title,
 		Body:  body.Body,
 	}
 	res := &calc.CreateNotePayload{
-		Note: v,
+		NoteDetails: v,
 	}
 	res.UserID = userID
 

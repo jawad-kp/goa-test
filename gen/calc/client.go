@@ -20,17 +20,19 @@ type Client struct {
 	SubtractEndpoint   goa.Endpoint
 	DivideEndpoint     goa.Endpoint
 	GetNotesEndpoint   goa.Endpoint
+	GetNoteEndpoint    goa.Endpoint
 	CreateNoteEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "calc" service client given the endpoints.
-func NewClient(multiply, add, subtract, divide, getNotes, createNote goa.Endpoint) *Client {
+func NewClient(multiply, add, subtract, divide, getNotes, getNote, createNote goa.Endpoint) *Client {
 	return &Client{
 		MultiplyEndpoint:   multiply,
 		AddEndpoint:        add,
 		SubtractEndpoint:   subtract,
 		DivideEndpoint:     divide,
 		GetNotesEndpoint:   getNotes,
+		GetNoteEndpoint:    getNote,
 		CreateNoteEndpoint: createNote,
 	}
 }
@@ -76,6 +78,9 @@ func (c *Client) Divide(ctx context.Context, p *DividePayload) (res float64, err
 }
 
 // GetNotes calls the "getNotes" endpoint of the "calc" service.
+// GetNotes may return the following errors:
+//   - "NoteMissing" (type *goa.ServiceError)
+//   - error: internal error
 func (c *Client) GetNotes(ctx context.Context, p *GetNotesPayload) (res *GetNotesResult, err error) {
 	var ires interface{}
 	ires, err = c.GetNotesEndpoint(ctx, p)
@@ -85,11 +90,28 @@ func (c *Client) GetNotes(ctx context.Context, p *GetNotesPayload) (res *GetNote
 	return ires.(*GetNotesResult), nil
 }
 
+// GetNote calls the "getNote" endpoint of the "calc" service.
+// GetNote may return the following errors:
+//   - "NoteMissing" (type *goa.ServiceError)
+//   - error: internal error
+func (c *Client) GetNote(ctx context.Context, p *GetNotePayload) (res *GetNoteResult, err error) {
+	var ires interface{}
+	ires, err = c.GetNoteEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*GetNoteResult), nil
+}
+
 // CreateNote calls the "createNote" endpoint of the "calc" service.
 // CreateNote may return the following errors:
 //   - "BadRequest" (type *goa.ServiceError)
 //   - error: internal error
-func (c *Client) CreateNote(ctx context.Context, p *CreateNotePayload) (err error) {
-	_, err = c.CreateNoteEndpoint(ctx, p)
-	return
+func (c *Client) CreateNote(ctx context.Context, p *CreateNotePayload) (res *CreateNoteResult, err error) {
+	var ires interface{}
+	ires, err = c.CreateNoteEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*CreateNoteResult), nil
 }

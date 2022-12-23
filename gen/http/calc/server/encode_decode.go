@@ -238,12 +238,99 @@ func DecodeGetNotesRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 	}
 }
 
+// EncodeGetNotesError returns an encoder for errors returned by the getNotes
+// calc endpoint.
+func EncodeGetNotesError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		en, ok := v.(ErrorNamer)
+		if !ok {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "NoteMissing":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewGetNotesNoteMissingResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeGetNoteResponse returns an encoder for responses returned by the calc
+// getNote endpoint.
+func EncodeGetNoteResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*calc.GetNoteResult)
+		enc := encoder(ctx, w)
+		body := NewGetNoteResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeGetNoteRequest returns a decoder for requests sent to the calc getNote
+// endpoint.
+func DecodeGetNoteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			uuid string
+
+			params = mux.Vars(r)
+		)
+		uuid = params["uuid"]
+		payload := NewGetNotePayload(uuid)
+
+		return payload, nil
+	}
+}
+
+// EncodeGetNoteError returns an encoder for errors returned by the getNote
+// calc endpoint.
+func EncodeGetNoteError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		en, ok := v.(ErrorNamer)
+		if !ok {
+			return encodeError(ctx, w, v)
+		}
+		switch en.ErrorName() {
+		case "NoteMissing":
+			res := v.(*goa.ServiceError)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(res)
+			} else {
+				body = NewGetNoteNoteMissingResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.ErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeCreateNoteResponse returns an encoder for responses returned by the
 // calc createNote endpoint.
 func EncodeCreateNoteResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
 	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res, _ := v.(*calc.CreateNoteResult)
+		enc := encoder(ctx, w)
+		body := NewCreateNoteResponseBody(res)
 		w.WriteHeader(http.StatusCreated)
-		return nil
+		return enc.Encode(body)
 	}
 }
 
@@ -313,6 +400,17 @@ func marshalCalcNoteToNoteResponseBody(v *calc.Note) *NoteResponseBody {
 	res := &NoteResponseBody{
 		Title: v.Title,
 		Body:  v.Body,
+		UUID:  v.UUID,
+	}
+
+	return res
+}
+
+// marshalCalcNoteResponseToNoteResponseResponseBody builds a value of type
+// *NoteResponseResponseBody from a value of type *calc.NoteResponse.
+func marshalCalcNoteResponseToNoteResponseResponseBody(v *calc.NoteResponse) *NoteResponseResponseBody {
+	res := &NoteResponseResponseBody{
+		UUID: v.UUID,
 	}
 
 	return res

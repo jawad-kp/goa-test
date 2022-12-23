@@ -35,6 +35,10 @@ type Client struct {
 	// endpoint.
 	GetNotesDoer goahttp.Doer
 
+	// GetNote Doer is the HTTP client used to make requests to the getNote
+	// endpoint.
+	GetNoteDoer goahttp.Doer
+
 	// CreateNote Doer is the HTTP client used to make requests to the createNote
 	// endpoint.
 	CreateNoteDoer goahttp.Doer
@@ -64,6 +68,7 @@ func NewClient(
 		SubtractDoer:        doer,
 		DivideDoer:          doer,
 		GetNotesDoer:        doer,
+		GetNoteDoer:         doer,
 		CreateNoteDoer:      doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -163,6 +168,25 @@ func (c *Client) GetNotes() goa.Endpoint {
 		resp, err := c.GetNotesDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("calc", "getNotes", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// GetNote returns an endpoint that makes HTTP requests to the calc service
+// getNote server.
+func (c *Client) GetNote() goa.Endpoint {
+	var (
+		decodeResponse = DecodeGetNoteResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildGetNoteRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.GetNoteDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("calc", "getNote", err)
 		}
 		return decodeResponse(resp)
 	}

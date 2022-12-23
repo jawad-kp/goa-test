@@ -36,7 +36,12 @@ func GetNotesCalcPath(userID string) string {
 	return fmt.Sprintf("/notes/%v", userID)
 }
 
+// GetNoteCalcPath returns the URL path to the calc service getNote HTTP endpoint.
+func GetNoteCalcPath(uuid string) string {
+	return fmt.Sprintf("/note/%v", uuid)
+}
+
 // CreateNoteCalcPath returns the URL path to the calc service createNote HTTP endpoint.
 func CreateNoteCalcPath(userID string) string {
-	return fmt.Sprintf("/notes/%v", userID)
+	return fmt.Sprintf("/note/create/%v", userID)
 }

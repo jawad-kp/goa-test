@@ -23,6 +23,7 @@ type Server struct {
 	SubtractH   goagrpc.UnaryHandler
 	DivideH     goagrpc.UnaryHandler
 	GetNotesH   goagrpc.UnaryHandler
+	GetNoteH    goagrpc.UnaryHandler
 	CreateNoteH goagrpc.UnaryHandler
 	calcpb.UnimplementedCalcServer
 }
@@ -41,6 +42,7 @@ func New(e *calc.Endpoints, uh goagrpc.UnaryHandler) *Server {
 		SubtractH:   NewSubtractHandler(e.Subtract, uh),
 		DivideH:     NewDivideHandler(e.Divide, uh),
 		GetNotesH:   NewGetNotesHandler(e.GetNotes, uh),
+		GetNoteH:    NewGetNoteHandler(e.GetNote, uh),
 		CreateNoteH: NewCreateNoteHandler(e.CreateNote, uh),
 	}
 }
@@ -143,6 +145,26 @@ func (s *Server) GetNotes(ctx context.Context, message *calcpb.GetNotesRequest) 
 		return nil, goagrpc.EncodeError(err)
 	}
 	return resp.(*calcpb.GetNotesResponse), nil
+}
+
+// NewGetNoteHandler creates a gRPC handler which serves the "calc" service
+// "getNote" endpoint.
+func NewGetNoteHandler(endpoint goa.Endpoint, h goagrpc.UnaryHandler) goagrpc.UnaryHandler {
+	if h == nil {
+		h = goagrpc.NewUnaryHandler(endpoint, DecodeGetNoteRequest, EncodeGetNoteResponse)
+	}
+	return h
+}
+
+// GetNote implements the "GetNote" method in calcpb.CalcServer interface.
+func (s *Server) GetNote(ctx context.Context, message *calcpb.GetNoteRequest) (*calcpb.GetNoteResponse, error) {
+	ctx = context.WithValue(ctx, goa.MethodKey, "getNote")
+	ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
+	resp, err := s.GetNoteH.Handle(ctx, message)
+	if err != nil {
+		return nil, goagrpc.EncodeError(err)
+	}
+	return resp.(*calcpb.GetNoteResponse), nil
 }
 
 // NewCreateNoteHandler creates a gRPC handler which serves the "calc" service
