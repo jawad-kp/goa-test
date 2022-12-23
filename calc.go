@@ -60,10 +60,16 @@ func (s *calcService) GetNotes(ctx context.Context, payload *calc.GetNotesPayloa
 	}
 	noteList := make([]*calc.Note, len(result))
 	for i, note := range result {
+		var (
+			// noteData calc.Note
+			title string = note.Title
+			body string = note.Body
+			uuid = note.UUID
+		)
 		noteList[i] = &calc.Note{
-			Title: &note.Title,
-			Body:  &note.Body,
-			UUID:  &note.UUID,
+			Title: &title,
+			Body:  &body,
+			UUID:  &uuid,
 		}
 	}
 	res = &calc.GetNotesResult{Notes: noteList}
@@ -92,5 +98,13 @@ func (s *calcService) CreateNote(ctx context.Context, payload *calc.CreateNotePa
 	s.logger.Print("calc.createNote")
 	noteModel, err = s.db.SaveNoteToDb(ctx, &noteModel)
 	res = &calc.CreateNoteResult{NoteResponse: &calc.NoteResponse{UUID: &noteModel.UUID}}
+	return
+}
+
+func (s *calcService) DeleteNote(ctx context.Context, payload *calc.DeleteNotePayload) (err error) {
+	err = s.db.SoftDeleteNoteByUUID(ctx,payload.UUID)
+	if err != nil && err.Error() == "document not found" {
+		return calc.MakeNoteMissing(err)
+	}
 	return
 }
