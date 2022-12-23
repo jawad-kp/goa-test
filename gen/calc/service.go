@@ -29,6 +29,8 @@ type Service interface {
 	GetNote(context.Context, *GetNotePayload) (res *GetNoteResult, err error)
 	// CreateNote implements createNote.
 	CreateNote(context.Context, *CreateNotePayload) (res *CreateNoteResult, err error)
+	// DeleteNote implements deleteNote.
+	DeleteNote(context.Context, *DeleteNotePayload) (err error)
 }
 
 // ServiceName is the name of the service as defined in the design. This is the
@@ -39,7 +41,7 @@ const ServiceName = "calc"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [7]string{"multiply", "add", "subtract", "divide", "getNotes", "getNote", "createNote"}
+var MethodNames = [8]string{"multiply", "add", "subtract", "divide", "getNotes", "getNote", "createNote", "deleteNote"}
 
 // MultiplyPayload is the payload type of the calc service multiply method.
 type MultiplyPayload struct {
@@ -109,6 +111,12 @@ type CreateNotePayload struct {
 type CreateNoteResult struct {
 	// The Created Note
 	NoteResponse *NoteResponse
+}
+
+// DeleteNotePayload is the payload type of the calc service deleteNote method.
+type DeleteNotePayload struct {
+	// The uuid for the note
+	UUID string
 }
 
 type Note struct {

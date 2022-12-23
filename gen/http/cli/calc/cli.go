@@ -22,13 +22,13 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `calc (multiply|add|subtract|divide|get-notes|get-note|create-note)
+	return `calc (multiply|add|subtract|divide|get-notes|get-note|create-note|delete-note)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` calc multiply --a 2788110747497692605 --b 5305748056757514353` + "\n" +
+	return os.Args[0] + ` calc multiply --a 5058434971892362792 --b 6339444414280965279` + "\n" +
 		""
 }
 
@@ -69,6 +69,9 @@ func ParseEndpoint(
 		calcCreateNoteFlags      = flag.NewFlagSet("create-note", flag.ExitOnError)
 		calcCreateNoteBodyFlag   = calcCreateNoteFlags.String("body", "REQUIRED", "")
 		calcCreateNoteUserIDFlag = calcCreateNoteFlags.String("user-id", "REQUIRED", "The UserID for the note")
+
+		calcDeleteNoteFlags    = flag.NewFlagSet("delete-note", flag.ExitOnError)
+		calcDeleteNoteUUIDFlag = calcDeleteNoteFlags.String("uuid", "REQUIRED", "The uuid for the note")
 	)
 	calcFlags.Usage = calcUsage
 	calcMultiplyFlags.Usage = calcMultiplyUsage
@@ -78,6 +81,7 @@ func ParseEndpoint(
 	calcGetNotesFlags.Usage = calcGetNotesUsage
 	calcGetNoteFlags.Usage = calcGetNoteUsage
 	calcCreateNoteFlags.Usage = calcCreateNoteUsage
+	calcDeleteNoteFlags.Usage = calcDeleteNoteUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -134,6 +138,9 @@ func ParseEndpoint(
 			case "create-note":
 				epf = calcCreateNoteFlags
 
+			case "delete-note":
+				epf = calcDeleteNoteFlags
+
 			}
 
 		}
@@ -180,6 +187,9 @@ func ParseEndpoint(
 			case "create-note":
 				endpoint = c.CreateNote()
 				data, err = calcc.BuildCreateNotePayload(*calcCreateNoteBodyFlag, *calcCreateNoteUserIDFlag)
+			case "delete-note":
+				endpoint = c.DeleteNote()
+				data, err = calcc.BuildDeleteNotePayload(*calcDeleteNoteUUIDFlag)
 			}
 		}
 	}
@@ -204,6 +214,7 @@ COMMAND:
     get-notes: GetNotes implements getNotes.
     get-note: GetNote implements getNote.
     create-note: CreateNote implements createNote.
+    delete-note: DeleteNote implements deleteNote.
 
 Additional help:
     %[1]s calc COMMAND --help
@@ -217,7 +228,7 @@ Multiply implements multiply.
     -b INT: Right operand
 
 Example:
-    %[1]s calc multiply --a 2788110747497692605 --b 5305748056757514353
+    %[1]s calc multiply --a 5058434971892362792 --b 6339444414280965279
 `, os.Args[0])
 }
 
@@ -229,7 +240,7 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    %[1]s calc add --a 3346131084553893015 --b 3122430129802868656
+    %[1]s calc add --a 817058348830766028 --b 3322573843781975777
 `, os.Args[0])
 }
 
@@ -241,7 +252,7 @@ Subtract implements subtract.
     -b INT: Right operand
 
 Example:
-    %[1]s calc subtract --a 6850943989821012471 --b 2082938806418090480
+    %[1]s calc subtract --a 7751818438486731811 --b 5283882173996522064
 `, os.Args[0])
 }
 
@@ -253,7 +264,7 @@ Divide implements divide.
     -b INT: Right operand
 
 Example:
-    %[1]s calc divide --a 2403877865146434878 --b 1176453865776169456
+    %[1]s calc divide --a 7975048290953053706 --b 7217635355084212879
 `, os.Args[0])
 }
 
@@ -264,7 +275,7 @@ GetNotes implements getNotes.
     -user-id STRING: The email of the user
 
 Example:
-    %[1]s calc get-notes --user-id "Consectetur excepturi eaque omnis veritatis."
+    %[1]s calc get-notes --user-id "Accusantium culpa odit eaque."
 `, os.Args[0])
 }
 
@@ -275,7 +286,7 @@ GetNote implements getNote.
     -uuid STRING: The note's UUID
 
 Example:
-    %[1]s calc get-note --uuid "Rerum ipsam eveniet consequatur omnis velit."
+    %[1]s calc get-note --uuid "Sed neque consequatur maiores aut sed."
 `, os.Args[0])
 }
 
@@ -288,8 +299,19 @@ CreateNote implements createNote.
 
 Example:
     %[1]s calc create-note --body '{
-      "Body": "Quis consectetur voluptas.",
-      "Title": "Qui mollitia."
-   }' --user-id "Neque consequatur maiores aut."
+      "Body": "Quia dolores consequatur cum itaque.",
+      "Title": "Officiis rerum."
+   }' --user-id "Nam deserunt et tempora atque."
+`, os.Args[0])
+}
+
+func calcDeleteNoteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc delete-note -uuid STRING
+
+DeleteNote implements deleteNote.
+    -uuid STRING: The uuid for the note
+
+Example:
+    %[1]s calc delete-note --uuid "Aut veritatis voluptas."
 `, os.Args[0])
 }

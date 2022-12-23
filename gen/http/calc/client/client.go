@@ -43,6 +43,10 @@ type Client struct {
 	// endpoint.
 	CreateNoteDoer goahttp.Doer
 
+	// DeleteNote Doer is the HTTP client used to make requests to the deleteNote
+	// endpoint.
+	DeleteNoteDoer goahttp.Doer
+
 	// RestoreResponseBody controls whether the response bodies are reset after
 	// decoding so they can be read again.
 	RestoreResponseBody bool
@@ -70,6 +74,7 @@ func NewClient(
 		GetNotesDoer:        doer,
 		GetNoteDoer:         doer,
 		CreateNoteDoer:      doer,
+		DeleteNoteDoer:      doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
 		host:                host,
@@ -211,6 +216,25 @@ func (c *Client) CreateNote() goa.Endpoint {
 		resp, err := c.CreateNoteDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("calc", "createNote", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// DeleteNote returns an endpoint that makes HTTP requests to the calc service
+// deleteNote server.
+func (c *Client) DeleteNote() goa.Endpoint {
+	var (
+		decodeResponse = DecodeDeleteNoteResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildDeleteNoteRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DeleteNoteDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("calc", "deleteNote", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -26,6 +26,7 @@ type Server struct {
 	GetNotes           http.Handler
 	GetNote            http.Handler
 	CreateNote         http.Handler
+	DeleteNote         http.Handler
 	GenHTTPOpenapiJSON http.Handler
 }
 
@@ -73,6 +74,7 @@ func New(
 			{"GetNotes", "GET", "/notes/{userID}"},
 			{"GetNote", "GET", "/note/{uuid}"},
 			{"CreateNote", "POST", "/note/create/{userID}"},
+			{"DeleteNote", "DELETE", "/note/{uuid}"},
 			{"./gen/http/openapi.json", "GET", "/openapi.json"},
 		},
 		Multiply:           NewMultiplyHandler(e.Multiply, mux, decoder, encoder, errhandler, formatter),
@@ -82,6 +84,7 @@ func New(
 		GetNotes:           NewGetNotesHandler(e.GetNotes, mux, decoder, encoder, errhandler, formatter),
 		GetNote:            NewGetNoteHandler(e.GetNote, mux, decoder, encoder, errhandler, formatter),
 		CreateNote:         NewCreateNoteHandler(e.CreateNote, mux, decoder, encoder, errhandler, formatter),
+		DeleteNote:         NewDeleteNoteHandler(e.DeleteNote, mux, decoder, encoder, errhandler, formatter),
 		GenHTTPOpenapiJSON: http.FileServer(fileSystemGenHTTPOpenapiJSON),
 	}
 }
@@ -98,6 +101,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.GetNotes = m(s.GetNotes)
 	s.GetNote = m(s.GetNote)
 	s.CreateNote = m(s.CreateNote)
+	s.DeleteNote = m(s.DeleteNote)
 }
 
 // Mount configures the mux to serve the calc endpoints.
@@ -109,6 +113,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountGetNotesHandler(mux, h.GetNotes)
 	MountGetNoteHandler(mux, h.GetNote)
 	MountCreateNoteHandler(mux, h.CreateNote)
+	MountDeleteNoteHandler(mux, h.DeleteNote)
 	MountGenHTTPOpenapiJSON(mux, goahttp.Replace("", "/./gen/http/openapi.json", h.GenHTTPOpenapiJSON))
 }
 
@@ -448,6 +453,57 @@ func NewCreateNoteHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "createNote")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountDeleteNoteHandler configures the mux to serve the "calc" service
+// "deleteNote" endpoint.
+func MountDeleteNoteHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("DELETE", "/note/{uuid}", f)
+}
+
+// NewDeleteNoteHandler creates a HTTP handler which loads the HTTP request and
+// calls the "calc" service "deleteNote" endpoint.
+func NewDeleteNoteHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeDeleteNoteRequest(mux, decoder)
+		encodeResponse = EncodeDeleteNoteResponse(encoder)
+		encodeError    = EncodeDeleteNoteError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "deleteNote")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
 		payload, err := decodeRequest(r)
 		if err != nil {

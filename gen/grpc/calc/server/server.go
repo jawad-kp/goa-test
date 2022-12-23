@@ -25,6 +25,7 @@ type Server struct {
 	GetNotesH   goagrpc.UnaryHandler
 	GetNoteH    goagrpc.UnaryHandler
 	CreateNoteH goagrpc.UnaryHandler
+	DeleteNoteH goagrpc.UnaryHandler
 	calcpb.UnimplementedCalcServer
 }
 
@@ -44,6 +45,7 @@ func New(e *calc.Endpoints, uh goagrpc.UnaryHandler) *Server {
 		GetNotesH:   NewGetNotesHandler(e.GetNotes, uh),
 		GetNoteH:    NewGetNoteHandler(e.GetNote, uh),
 		CreateNoteH: NewCreateNoteHandler(e.CreateNote, uh),
+		DeleteNoteH: NewDeleteNoteHandler(e.DeleteNote, uh),
 	}
 }
 
@@ -185,4 +187,24 @@ func (s *Server) CreateNote(ctx context.Context, message *calcpb.CreateNoteReque
 		return nil, goagrpc.EncodeError(err)
 	}
 	return resp.(*calcpb.CreateNoteResponse), nil
+}
+
+// NewDeleteNoteHandler creates a gRPC handler which serves the "calc" service
+// "deleteNote" endpoint.
+func NewDeleteNoteHandler(endpoint goa.Endpoint, h goagrpc.UnaryHandler) goagrpc.UnaryHandler {
+	if h == nil {
+		h = goagrpc.NewUnaryHandler(endpoint, DecodeDeleteNoteRequest, EncodeDeleteNoteResponse)
+	}
+	return h
+}
+
+// DeleteNote implements the "DeleteNote" method in calcpb.CalcServer interface.
+func (s *Server) DeleteNote(ctx context.Context, message *calcpb.DeleteNoteRequest) (*calcpb.DeleteNoteResponse, error) {
+	ctx = context.WithValue(ctx, goa.MethodKey, "deleteNote")
+	ctx = context.WithValue(ctx, goa.ServiceKey, "calc")
+	resp, err := s.DeleteNoteH.Handle(ctx, message)
+	if err != nil {
+		return nil, goagrpc.EncodeError(err)
+	}
+	return resp.(*calcpb.DeleteNoteResponse), nil
 }

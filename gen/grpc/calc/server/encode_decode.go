@@ -223,3 +223,29 @@ func DecodeCreateNoteRequest(ctx context.Context, v interface{}, md metadata.MD)
 	}
 	return payload, nil
 }
+
+// EncodeDeleteNoteResponse encodes responses from the "calc" service
+// "deleteNote" endpoint.
+func EncodeDeleteNoteResponse(ctx context.Context, v interface{}, hdr, trlr *metadata.MD) (interface{}, error) {
+	resp := NewDeleteNoteResponse()
+	return resp, nil
+}
+
+// DecodeDeleteNoteRequest decodes requests sent to "calc" service "deleteNote"
+// endpoint.
+func DecodeDeleteNoteRequest(ctx context.Context, v interface{}, md metadata.MD) (interface{}, error) {
+	var (
+		message *calcpb.DeleteNoteRequest
+		ok      bool
+	)
+	{
+		if message, ok = v.(*calcpb.DeleteNoteRequest); !ok {
+			return nil, goagrpc.ErrInvalidType("calc", "deleteNote", "*calcpb.DeleteNoteRequest", v)
+		}
+	}
+	var payload *calc.DeleteNotePayload
+	{
+		payload = NewDeleteNotePayload(message)
+	}
+	return payload, nil
+}

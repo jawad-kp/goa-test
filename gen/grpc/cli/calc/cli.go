@@ -21,15 +21,15 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `calc (multiply|add|subtract|divide|get-notes|get-note|create-note)
+	return `calc (multiply|add|subtract|divide|get-notes|get-note|create-note|delete-note)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + ` calc multiply --message '{
-      "a": 5752212304782361938,
-      "b": 5269901698896315977
+      "a": 9048659887702528681,
+      "b": 40344070816643173
    }'` + "\n" +
 		""
 }
@@ -60,6 +60,9 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 
 		calcCreateNoteFlags       = flag.NewFlagSet("create-note", flag.ExitOnError)
 		calcCreateNoteMessageFlag = calcCreateNoteFlags.String("message", "", "")
+
+		calcDeleteNoteFlags       = flag.NewFlagSet("delete-note", flag.ExitOnError)
+		calcDeleteNoteMessageFlag = calcDeleteNoteFlags.String("message", "", "")
 	)
 	calcFlags.Usage = calcUsage
 	calcMultiplyFlags.Usage = calcMultiplyUsage
@@ -69,6 +72,7 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 	calcGetNotesFlags.Usage = calcGetNotesUsage
 	calcGetNoteFlags.Usage = calcGetNoteUsage
 	calcCreateNoteFlags.Usage = calcCreateNoteUsage
+	calcDeleteNoteFlags.Usage = calcDeleteNoteUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -125,6 +129,9 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 			case "create-note":
 				epf = calcCreateNoteFlags
 
+			case "delete-note":
+				epf = calcDeleteNoteFlags
+
 			}
 
 		}
@@ -171,6 +178,9 @@ func ParseEndpoint(cc *grpc.ClientConn, opts ...grpc.CallOption) (goa.Endpoint, 
 			case "create-note":
 				endpoint = c.CreateNote()
 				data, err = calcc.BuildCreateNotePayload(*calcCreateNoteMessageFlag)
+			case "delete-note":
+				endpoint = c.DeleteNote()
+				data, err = calcc.BuildDeleteNotePayload(*calcDeleteNoteMessageFlag)
 			}
 		}
 	}
@@ -195,6 +205,7 @@ COMMAND:
     get-notes: GetNotes implements getNotes.
     get-note: GetNote implements getNote.
     create-note: CreateNote implements createNote.
+    delete-note: DeleteNote implements deleteNote.
 
 Additional help:
     %[1]s calc COMMAND --help
@@ -208,8 +219,8 @@ Multiply implements multiply.
 
 Example:
     %[1]s calc multiply --message '{
-      "a": 5752212304782361938,
-      "b": 5269901698896315977
+      "a": 9048659887702528681,
+      "b": 40344070816643173
    }'
 `, os.Args[0])
 }
@@ -222,8 +233,8 @@ Add implements add.
 
 Example:
     %[1]s calc add --message '{
-      "a": 7047189229146369891,
-      "b": 3896950918919820613
+      "a": 9220305559046467008,
+      "b": 7814335094839211944
    }'
 `, os.Args[0])
 }
@@ -236,8 +247,8 @@ Subtract implements subtract.
 
 Example:
     %[1]s calc subtract --message '{
-      "a": 460832770702694527,
-      "b": 3464015629245697118
+      "a": 1867970362095414781,
+      "b": 78697417377061451
    }'
 `, os.Args[0])
 }
@@ -250,8 +261,8 @@ Divide implements divide.
 
 Example:
     %[1]s calc divide --message '{
-      "a": 2105883920431331421,
-      "b": 9040457143694300258
+      "a": 7742361993167804819,
+      "b": 1839273396588264574
    }'
 `, os.Args[0])
 }
@@ -264,7 +275,7 @@ GetNotes implements getNotes.
 
 Example:
     %[1]s calc get-notes --message '{
-      "userID": "Nihil odit iusto vitae."
+      "userID": "Voluptates rerum facere quas."
    }'
 `, os.Args[0])
 }
@@ -277,7 +288,7 @@ GetNote implements getNote.
 
 Example:
     %[1]s calc get-note --message '{
-      "uuid": "Veritatis voluptas atque labore at fuga."
+      "uuid": "Est debitis accusamus quia minus inventore accusamus."
    }'
 `, os.Args[0])
 }
@@ -294,7 +305,20 @@ Example:
          "Body": "Ut itaque sit corrupti velit.",
          "Title": "Non et."
       },
-      "userID": "Aliquam vel facilis."
+      "userID": "Illum ea velit."
+   }'
+`, os.Args[0])
+}
+
+func calcDeleteNoteUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] calc delete-note -message JSON
+
+DeleteNote implements deleteNote.
+    -message JSON: 
+
+Example:
+    %[1]s calc delete-note --message '{
+      "uuid": "Omnis debitis voluptatum est enim possimus exercitationem."
    }'
 `, os.Args[0])
 }

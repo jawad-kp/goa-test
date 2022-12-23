@@ -520,6 +520,75 @@ func DecodeCreateNoteResponse(decoder func(*http.Response) goahttp.Decoder, rest
 	}
 }
 
+// BuildDeleteNoteRequest instantiates a HTTP request object with method and
+// path set to call the "calc" service "deleteNote" endpoint
+func (c *Client) BuildDeleteNoteRequest(ctx context.Context, v interface{}) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*calc.DeleteNotePayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("calc", "deleteNote", "*calc.DeleteNotePayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DeleteNoteCalcPath(uuid)}
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("calc", "deleteNote", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// DecodeDeleteNoteResponse returns a decoder for responses returned by the
+// calc deleteNote endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeDeleteNoteResponse may return the following errors:
+//   - "NoteMissing" (type *goa.ServiceError): http.StatusNotFound
+//   - error: internal error
+func DecodeDeleteNoteResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (interface{}, error) {
+	return func(resp *http.Response) (interface{}, error) {
+		if restoreBody {
+			b, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusNoContent:
+			return nil, nil
+		case http.StatusNotFound:
+			var (
+				body DeleteNoteNoteMissingResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("calc", "deleteNote", err)
+			}
+			err = ValidateDeleteNoteNoteMissingResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("calc", "deleteNote", err)
+			}
+			return nil, NewDeleteNoteNoteMissing(&body)
+		default:
+			body, _ := ioutil.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("calc", "deleteNote", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalNoteResponseBodyToCalcNote builds a value of type *calc.Note from a
 // value of type *NoteResponseBody.
 func unmarshalNoteResponseBodyToCalcNote(v *NoteResponseBody) *calc.Note {

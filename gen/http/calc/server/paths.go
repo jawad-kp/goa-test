@@ -45,3 +45,8 @@ func GetNoteCalcPath(uuid string) string {
 func CreateNoteCalcPath(userID string) string {
 	return fmt.Sprintf("/note/create/%v", userID)
 }
+
+// DeleteNoteCalcPath returns the URL path to the calc service deleteNote HTTP endpoint.
+func DeleteNoteCalcPath(uuid string) string {
+	return fmt.Sprintf("/note/%v", uuid)
+}

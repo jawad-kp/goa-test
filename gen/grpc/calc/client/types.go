@@ -154,6 +154,15 @@ func NewCreateNoteResult(message *calcpb.CreateNoteResponse) *calc.CreateNoteRes
 	return result
 }
 
+// NewDeleteNoteRequest builds the gRPC request type from the payload of the
+// "deleteNote" endpoint of the "calc" service.
+func NewDeleteNoteRequest(payload *calc.DeleteNotePayload) *calcpb.DeleteNoteRequest {
+	message := &calcpb.DeleteNoteRequest{
+		Uuid: payload.UUID,
+	}
+	return message
+}
+
 // ValidateCreateNoteResponse runs the validations defined on
 // CreateNoteResponse.
 func ValidateCreateNoteResponse(message *calcpb.CreateNoteResponse) (err error) {

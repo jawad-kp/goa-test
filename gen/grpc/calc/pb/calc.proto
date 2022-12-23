@@ -27,6 +27,8 @@ service Calc {
 	rpc GetNote (GetNoteRequest) returns (GetNoteResponse);
 	// CreateNote implements createNote.
 	rpc CreateNote (CreateNoteRequest) returns (CreateNoteResponse);
+	// DeleteNote implements deleteNote.
+	rpc DeleteNote (DeleteNoteRequest) returns (DeleteNoteResponse);
 }
 
 message MultiplyRequest {
@@ -124,4 +126,12 @@ message CreateNoteResponse {
 message NoteResponse {
 	// The UUID of the Created Note
 	string uuid = 1;
+}
+
+message DeleteNoteRequest {
+	// The uuid for the note
+	string uuid = 1;
+}
+
+message DeleteNoteResponse {
 }

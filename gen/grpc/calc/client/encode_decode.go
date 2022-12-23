@@ -250,3 +250,26 @@ func DecodeCreateNoteResponse(ctx context.Context, v interface{}, hdr, trlr meta
 	res := NewCreateNoteResult(message)
 	return res, nil
 }
+
+// BuildDeleteNoteFunc builds the remote method to invoke for "calc" service
+// "deleteNote" endpoint.
+func BuildDeleteNoteFunc(grpccli calcpb.CalcClient, cliopts ...grpc.CallOption) goagrpc.RemoteFunc {
+	return func(ctx context.Context, reqpb interface{}, opts ...grpc.CallOption) (interface{}, error) {
+		for _, opt := range cliopts {
+			opts = append(opts, opt)
+		}
+		if reqpb != nil {
+			return grpccli.DeleteNote(ctx, reqpb.(*calcpb.DeleteNoteRequest), opts...)
+		}
+		return grpccli.DeleteNote(ctx, &calcpb.DeleteNoteRequest{}, opts...)
+	}
+}
+
+// EncodeDeleteNoteRequest encodes requests sent to calc deleteNote endpoint.
+func EncodeDeleteNoteRequest(ctx context.Context, v interface{}, md *metadata.MD) (interface{}, error) {
+	payload, ok := v.(*calc.DeleteNotePayload)
+	if !ok {
+		return nil, goagrpc.ErrInvalidType("calc", "deleteNote", "*calc.DeleteNotePayload", v)
+	}
+	return NewDeleteNoteRequest(payload), nil
+}

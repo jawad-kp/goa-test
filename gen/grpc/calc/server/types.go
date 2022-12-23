@@ -156,6 +156,22 @@ func NewCreateNoteResponse(result *calc.CreateNoteResult) *calcpb.CreateNoteResp
 	return message
 }
 
+// NewDeleteNotePayload builds the payload of the "deleteNote" endpoint of the
+// "calc" service from the gRPC request type.
+func NewDeleteNotePayload(message *calcpb.DeleteNoteRequest) *calc.DeleteNotePayload {
+	v := &calc.DeleteNotePayload{
+		UUID: message.Uuid,
+	}
+	return v
+}
+
+// NewDeleteNoteResponse builds the gRPC response type from the result of the
+// "deleteNote" endpoint of the "calc" service.
+func NewDeleteNoteResponse() *calcpb.DeleteNoteResponse {
+	message := &calcpb.DeleteNoteResponse{}
+	return message
+}
+
 // svcCalcNoteToCalcpbNote builds a value of type *calcpb.Note from a value of
 // type *calc.Note.
 func svcCalcNoteToCalcpbNote(v *calc.Note) *calcpb.Note {

@@ -22,10 +22,11 @@ type Client struct {
 	GetNotesEndpoint   goa.Endpoint
 	GetNoteEndpoint    goa.Endpoint
 	CreateNoteEndpoint goa.Endpoint
+	DeleteNoteEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "calc" service client given the endpoints.
-func NewClient(multiply, add, subtract, divide, getNotes, getNote, createNote goa.Endpoint) *Client {
+func NewClient(multiply, add, subtract, divide, getNotes, getNote, createNote, deleteNote goa.Endpoint) *Client {
 	return &Client{
 		MultiplyEndpoint:   multiply,
 		AddEndpoint:        add,
@@ -34,6 +35,7 @@ func NewClient(multiply, add, subtract, divide, getNotes, getNote, createNote go
 		GetNotesEndpoint:   getNotes,
 		GetNoteEndpoint:    getNote,
 		CreateNoteEndpoint: createNote,
+		DeleteNoteEndpoint: deleteNote,
 	}
 }
 
@@ -114,4 +116,13 @@ func (c *Client) CreateNote(ctx context.Context, p *CreateNotePayload) (res *Cre
 		return
 	}
 	return ires.(*CreateNoteResult), nil
+}
+
+// DeleteNote calls the "deleteNote" endpoint of the "calc" service.
+// DeleteNote may return the following errors:
+//   - "NoteMissing" (type *goa.ServiceError)
+//   - error: internal error
+func (c *Client) DeleteNote(ctx context.Context, p *DeleteNotePayload) (err error) {
+	_, err = c.DeleteNoteEndpoint(ctx, p)
+	return
 }

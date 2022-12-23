@@ -111,6 +111,26 @@ paths:
             $ref: '#/definitions/CalcGetNoteNoteMissingResponseBody'
       schemes:
       - http
+    delete:
+      tags:
+      - calc
+      summary: deleteNote calc
+      operationId: calc#deleteNote
+      parameters:
+      - name: uuid
+        in: path
+        description: The uuid for the note
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content response.
+        "404":
+          description: Not Found response.
+          schema:
+            $ref: '#/definitions/CalcDeleteNoteNoteMissingResponseBody'
+      schemes:
+      - http
   /note/create/{userID}:
     post:
       tags:
@@ -229,7 +249,7 @@ definitions:
       temporary:
         type: boolean
         description: Is the error temporary?
-        example: false
+        example: true
       timeout:
         type: boolean
         description: Is the error a timeout?
@@ -240,7 +260,7 @@ definitions:
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: false
+      temporary: true
       timeout: true
     required:
     - name
@@ -256,14 +276,14 @@ definitions:
       Body:
         type: string
         description: The Body of the Note
-        example: Fugit a nulla.
+        example: Dolore qui consequuntur qui dolor.
       Title:
         type: string
         description: The title of the Note
-        example: Accusantium illo aut ipsam quia.
+        example: Omnis dolores accusantium doloribus qui.
     example:
-      Body: Rerum est nostrum qui aut vero.
-      Title: Sed ut beatae sint illo quam.
+      Body: Dolores voluptas suscipit ut rerum odio.
+      Title: Ipsum nostrum cumque deserunt labore hic rerum.
   CalcCreateNoteResponseBody:
     title: CalcCreateNoteResponseBody
     type: object
@@ -272,10 +292,10 @@ definitions:
         $ref: '#/definitions/NoteResponseResponseBody'
     example:
       NoteResponse:
-        UUID: Et consequatur quis dolorum corporis officiis rerum.
+        UUID: Ea ut enim aut.
     required:
     - NoteResponse
-  CalcGetNoteNoteMissingResponseBody:
+  CalcDeleteNoteNoteMissingResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
     properties:
@@ -304,15 +324,60 @@ definitions:
       timeout:
         type: boolean
         description: Is the error a timeout?
-        example: false
-    description: getNote_NoteMissing_response_body result type (default view)
+        example: true
+    description: deleteNote_NoteMissing_response_body result type (default view)
     example:
-      fault: true
+      fault: false
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: false
+      temporary: true
       timeout: true
+    required:
+    - name
+    - id
+    - message
+    - temporary
+    - timeout
+    - fault
+  CalcGetNoteNoteMissingResponseBody:
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+    properties:
+      fault:
+        type: boolean
+        description: Is the error a server-side fault?
+        example: true
+      id:
+        type: string
+        description: ID is a unique identifier for this particular occurrence of the
+          problem.
+        example: 123abc
+      message:
+        type: string
+        description: Message is a human-readable explanation specific to this occurrence
+          of the problem.
+        example: parameter 'p' must be an integer
+      name:
+        type: string
+        description: Name is the name of this class of errors.
+        example: bad_request
+      temporary:
+        type: boolean
+        description: Is the error temporary?
+        example: true
+      timeout:
+        type: boolean
+        description: Is the error a timeout?
+        example: false
+    description: getNote_NoteMissing_response_body result type (default view)
+    example:
+      fault: false
+      id: 123abc
+      message: parameter 'p' must be an integer
+      name: bad_request
+      temporary: true
+      timeout: false
     required:
     - name
     - id
@@ -328,9 +393,9 @@ definitions:
         $ref: '#/definitions/NoteResponseBody'
     example:
       Note:
-        Body: Culpa odit.
-        Title: Iure repellat.
-        UUID: Odit non.
+        Body: Ut rerum ipsam eveniet.
+        Title: Non quod et facere.
+        UUID: Omnis velit laboriosam unde omnis incidunt.
   CalcGetNotesNoteMissingResponseBody:
     title: 'Mediatype identifier: application/vnd.goa.error; view=default'
     type: object
@@ -338,7 +403,7 @@ definitions:
       fault:
         type: boolean
         description: Is the error a server-side fault?
-        example: false
+        example: true
       id:
         type: string
         description: ID is a unique identifier for this particular occurrence of the
@@ -367,7 +432,7 @@ definitions:
       id: 123abc
       message: parameter 'p' must be an integer
       name: bad_request
-      temporary: false
+      temporary: true
       timeout: false
     required:
     - name
@@ -386,32 +451,26 @@ definitions:
           $ref: '#/definitions/NoteResponseBody'
         description: list of notes
         example:
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
+        - Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
+        - Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
+        - Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
     example:
       notes:
-      - Body: Culpa odit.
-        Title: Iure repellat.
-        UUID: Odit non.
-      - Body: Culpa odit.
-        Title: Iure repellat.
-        UUID: Odit non.
-      - Body: Culpa odit.
-        Title: Iure repellat.
-        UUID: Odit non.
-      - Body: Culpa odit.
-        Title: Iure repellat.
-        UUID: Odit non.
+      - Body: Ut rerum ipsam eveniet.
+        Title: Non quod et facere.
+        UUID: Omnis velit laboriosam unde omnis incidunt.
+      - Body: Ut rerum ipsam eveniet.
+        Title: Non quod et facere.
+        UUID: Omnis velit laboriosam unde omnis incidunt.
+      - Body: Ut rerum ipsam eveniet.
+        Title: Non quod et facere.
+        UUID: Omnis velit laboriosam unde omnis incidunt.
   NoteResponseBody:
     title: NoteResponseBody
     type: object
@@ -419,19 +478,19 @@ definitions:
       Body:
         type: string
         description: The Body of the Note
-        example: Dolor aut officiis quos voluptates rerum.
+        example: Excepturi et molestiae aperiam corporis dolore a.
       Title:
         type: string
         description: The title of the Note
-        example: Doloremque qui recusandae.
+        example: Velit consequuntur eum illum voluptatem possimus.
       UUID:
         type: string
         description: The UUID of the created note
-        example: Quas deserunt quos est debitis accusamus.
+        example: Vero itaque.
     example:
-      Body: Illum ea velit.
-      Title: Minus inventore accusamus.
-      UUID: Omnis debitis voluptatum est enim possimus exercitationem.
+      Body: Corrupti molestiae ipsa voluptas impedit dolor.
+      Title: Nihil perferendis.
+      UUID: Pariatur reiciendis pariatur commodi iusto non accusantium.
   NoteResponseResponseBody:
     title: NoteResponseResponseBody
     type: object
@@ -439,6 +498,6 @@ definitions:
       UUID:
         type: string
         description: The UUID of the Created Note
-        example: In vero itaque quibusdam nihil perferendis.
+        example: Consequatur rerum est nostrum qui aut vero.
     example:
-      UUID: Corrupti molestiae ipsa voluptas impedit dolor.
+      UUID: Labore dolores eveniet.

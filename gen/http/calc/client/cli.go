@@ -163,7 +163,7 @@ func BuildCreateNotePayload(calcCreateNoteBody string, calcCreateNoteUserID stri
 	{
 		err = json.Unmarshal([]byte(calcCreateNoteBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"Body\": \"Quis consectetur voluptas.\",\n      \"Title\": \"Qui mollitia.\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"Body\": \"Quia dolores consequatur cum itaque.\",\n      \"Title\": \"Officiis rerum.\"\n   }'")
 		}
 	}
 	var userID string
@@ -180,4 +180,17 @@ func BuildCreateNotePayload(calcCreateNoteBody string, calcCreateNoteUserID stri
 	res.UserID = userID
 
 	return res, nil
+}
+
+// BuildDeleteNotePayload builds the payload for the calc deleteNote endpoint
+// from CLI flags.
+func BuildDeleteNotePayload(calcDeleteNoteUUID string) (*calc.DeleteNotePayload, error) {
+	var uuid string
+	{
+		uuid = calcDeleteNoteUUID
+	}
+	v := &calc.DeleteNotePayload{}
+	v.UUID = uuid
+
+	return v, nil
 }

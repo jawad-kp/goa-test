@@ -134,3 +134,18 @@ func (c *Client) CreateNote() goa.Endpoint {
 		return res, nil
 	}
 }
+
+// DeleteNote calls the "DeleteNote" function in calcpb.CalcClient interface.
+func (c *Client) DeleteNote() goa.Endpoint {
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		inv := goagrpc.NewInvoker(
+			BuildDeleteNoteFunc(c.grpccli, c.opts...),
+			EncodeDeleteNoteRequest,
+			nil)
+		res, err := inv.Invoke(ctx, v)
+		if err != nil {
+			return nil, goa.Fault(err.Error())
+		}
+		return res, nil
+	}
+}

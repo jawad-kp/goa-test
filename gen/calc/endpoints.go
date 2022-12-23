@@ -22,6 +22,7 @@ type Endpoints struct {
 	GetNotes   goa.Endpoint
 	GetNote    goa.Endpoint
 	CreateNote goa.Endpoint
+	DeleteNote goa.Endpoint
 }
 
 // NewEndpoints wraps the methods of the "calc" service with endpoints.
@@ -34,6 +35,7 @@ func NewEndpoints(s Service) *Endpoints {
 		GetNotes:   NewGetNotesEndpoint(s),
 		GetNote:    NewGetNoteEndpoint(s),
 		CreateNote: NewCreateNoteEndpoint(s),
+		DeleteNote: NewDeleteNoteEndpoint(s),
 	}
 }
 
@@ -46,6 +48,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.GetNotes = m(e.GetNotes)
 	e.GetNote = m(e.GetNote)
 	e.CreateNote = m(e.CreateNote)
+	e.DeleteNote = m(e.DeleteNote)
 }
 
 // NewMultiplyEndpoint returns an endpoint function that calls the method
@@ -108,5 +111,14 @@ func NewCreateNoteEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*CreateNotePayload)
 		return s.CreateNote(ctx, p)
+	}
+}
+
+// NewDeleteNoteEndpoint returns an endpoint function that calls the method
+// "deleteNote" of service "calc".
+func NewDeleteNoteEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*DeleteNotePayload)
+		return nil, s.DeleteNote(ctx, p)
 	}
 }

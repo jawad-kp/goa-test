@@ -36,6 +36,8 @@ type CalcClient interface {
 	GetNote(ctx context.Context, in *GetNoteRequest, opts ...grpc.CallOption) (*GetNoteResponse, error)
 	// CreateNote implements createNote.
 	CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error)
+	// DeleteNote implements deleteNote.
+	DeleteNote(ctx context.Context, in *DeleteNoteRequest, opts ...grpc.CallOption) (*DeleteNoteResponse, error)
 }
 
 type calcClient struct {
@@ -109,6 +111,15 @@ func (c *calcClient) CreateNote(ctx context.Context, in *CreateNoteRequest, opts
 	return out, nil
 }
 
+func (c *calcClient) DeleteNote(ctx context.Context, in *DeleteNoteRequest, opts ...grpc.CallOption) (*DeleteNoteResponse, error) {
+	out := new(DeleteNoteResponse)
+	err := c.cc.Invoke(ctx, "/calc.Calc/DeleteNote", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CalcServer is the server API for Calc service.
 // All implementations must embed UnimplementedCalcServer
 // for forward compatibility
@@ -127,6 +138,8 @@ type CalcServer interface {
 	GetNote(context.Context, *GetNoteRequest) (*GetNoteResponse, error)
 	// CreateNote implements createNote.
 	CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error)
+	// DeleteNote implements deleteNote.
+	DeleteNote(context.Context, *DeleteNoteRequest) (*DeleteNoteResponse, error)
 	mustEmbedUnimplementedCalcServer()
 }
 
@@ -154,6 +167,9 @@ func (UnimplementedCalcServer) GetNote(context.Context, *GetNoteRequest) (*GetNo
 }
 func (UnimplementedCalcServer) CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNote not implemented")
+}
+func (UnimplementedCalcServer) DeleteNote(context.Context, *DeleteNoteRequest) (*DeleteNoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteNote not implemented")
 }
 func (UnimplementedCalcServer) mustEmbedUnimplementedCalcServer() {}
 
@@ -294,6 +310,24 @@ func _Calc_CreateNote_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Calc_DeleteNote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteNoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CalcServer).DeleteNote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/calc.Calc/DeleteNote",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CalcServer).DeleteNote(ctx, req.(*DeleteNoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Calc_ServiceDesc is the grpc.ServiceDesc for Calc service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -328,6 +362,10 @@ var Calc_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateNote",
 			Handler:    _Calc_CreateNote_Handler,
+		},
+		{
+			MethodName: "DeleteNote",
+			Handler:    _Calc_DeleteNote_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

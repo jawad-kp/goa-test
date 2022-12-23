@@ -20,9 +20,9 @@ paths:
         schema:
           type: integer
           description: Left operand
-          example: 2242054764489736949
+          example: 1357111879278570563
           format: int64
-        example: 1131793420655038165
+        example: 1944403076966468488
       - name: b
         in: path
         description: Right operand
@@ -30,9 +30,9 @@ paths:
         schema:
           type: integer
           description: Right operand
-          example: 3673145410311480038
+          example: 8502600731307065034
           format: int64
-        example: 3243746875528619674
+        example: 4684098525035522116
       responses:
         "200":
           description: OK response.
@@ -40,9 +40,9 @@ paths:
             application/json:
               schema:
                 type: integer
-                example: 2400976892639445848
+                example: 857094420678700918
                 format: int64
-              example: 1088518167603563121
+              example: 2175071851789637083
   /divide/{a}/{b}:
     get:
       tags:
@@ -57,9 +57,9 @@ paths:
         schema:
           type: integer
           description: Left operand
-          example: 7741002109842823566
+          example: 9181821485886476748
           format: int64
-        example: 911379075816539846
+        example: 2625816219679266093
       - name: b
         in: path
         description: Right operand
@@ -67,9 +67,9 @@ paths:
         schema:
           type: integer
           description: Right operand
-          example: 2192466449662913414
+          example: 590789176751244985
           format: int64
-        example: 6811476457935130695
+        example: 271168432729687906
       responses:
         "200":
           description: OK response.
@@ -77,9 +77,9 @@ paths:
             application/json:
               schema:
                 type: number
-                example: 0.5678803790365939
+                example: 0.29971114866533977
                 format: double
-              example: 0.3426704198008367
+              example: 0.1276392035568775
   /multiply/{a}/{b}:
     get:
       tags:
@@ -94,9 +94,9 @@ paths:
         schema:
           type: integer
           description: Left operand
-          example: 8370511841661300976
+          example: 6473259481718754824
           format: int64
-        example: 5674942452083572581
+        example: 6224278692501446182
       - name: b
         in: path
         description: Right operand
@@ -104,9 +104,9 @@ paths:
         schema:
           type: integer
           description: Right operand
-          example: 2984505113374638734
+          example: 1663161643268787985
           format: int64
-        example: 1477943465194838685
+        example: 6299444053676092659
       responses:
         "200":
           description: OK response.
@@ -114,10 +114,38 @@ paths:
             application/json:
               schema:
                 type: integer
-                example: 6835105500630708025
+                example: 7372181875126382825
                 format: int64
-              example: 5994838392111719156
+              example: 2626203793042827726
   /note/{uuid}:
+    delete:
+      tags:
+      - calc
+      summary: deleteNote calc
+      operationId: calc#deleteNote
+      parameters:
+      - name: uuid
+        in: path
+        description: The uuid for the note
+        required: true
+        schema:
+          type: string
+          description: The uuid for the note
+          example: Eos eaque quis illum error voluptatem.
+        example: Dolore et autem quam quo officiis.
+      responses:
+        "204":
+          description: No Content response.
+        "404":
+          description: Not Found response.
+          content:
+            application/vnd.goa.error:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                id: 3F1FKVRR
+                message: Value of ID must be an integer
+                name: bad_request
     get:
       tags:
       - calc
@@ -131,8 +159,8 @@ paths:
         schema:
           type: string
           description: The note's UUID
-          example: Fuga fuga a ut accusamus.
-        example: Accusamus ea fugiat esse quisquam quod earum.
+          example: Ut corporis nihil.
+        example: Eveniet et ipsa nihil.
       responses:
         "200":
           description: OK response.
@@ -142,9 +170,9 @@ paths:
                 $ref: '#/components/schemas/GetNoteResponseBody'
               example:
                 Note:
-                  Body: Culpa odit.
-                  Title: Iure repellat.
-                  UUID: Odit non.
+                  Body: Ut rerum ipsam eveniet.
+                  Title: Non quod et facere.
+                  UUID: Omnis velit laboriosam unde omnis incidunt.
         "404":
           description: Not Found response.
           content:
@@ -169,8 +197,8 @@ paths:
         schema:
           type: string
           description: The UserID for the note
-          example: Rerum dolores repellat occaecati.
-        example: Assumenda repellendus nam excepturi.
+          example: Repellendus quod nostrum.
+        example: In quidem maxime eos doloremque impedit.
       requestBody:
         description: The Note data to be saved
         required: true
@@ -179,8 +207,8 @@ paths:
             schema:
               $ref: '#/components/schemas/NoteDetails'
             example:
-              Body: Quis consectetur voluptas.
-              Title: Qui mollitia.
+              Body: Quia dolores consequatur cum itaque.
+              Title: Officiis rerum.
       responses:
         "201":
           description: Created response.
@@ -190,7 +218,7 @@ paths:
                 $ref: '#/components/schemas/CreateNoteResponseBody'
               example:
                 NoteResponse:
-                  UUID: Et consequatur quis dolorum corporis officiis rerum.
+                  UUID: Ea ut enim aut.
         "400":
           description: Bad Request response.
           content:
@@ -215,8 +243,8 @@ paths:
         schema:
           type: string
           description: The email of the user
-          example: Culpa ullam autem magni est harum dolor.
-        example: Quibusdam accusantium animi at quis quae itaque.
+          example: Repellendus nam excepturi blanditiis mollitia eos quas.
+        example: Enim dolor.
       responses:
         "200":
           description: OK response.
@@ -226,15 +254,12 @@ paths:
                 $ref: '#/components/schemas/GetNotesResponseBody'
               example:
                 notes:
-                - Body: Culpa odit.
-                  Title: Iure repellat.
-                  UUID: Odit non.
-                - Body: Culpa odit.
-                  Title: Iure repellat.
-                  UUID: Odit non.
-                - Body: Culpa odit.
-                  Title: Iure repellat.
-                  UUID: Odit non.
+                - Body: Ut rerum ipsam eveniet.
+                  Title: Non quod et facere.
+                  UUID: Omnis velit laboriosam unde omnis incidunt.
+                - Body: Ut rerum ipsam eveniet.
+                  Title: Non quod et facere.
+                  UUID: Omnis velit laboriosam unde omnis incidunt.
         "404":
           description: Not Found response.
           content:
@@ -268,9 +293,9 @@ paths:
         schema:
           type: integer
           description: Left operand
-          example: 5750716488871359013
+          example: 4944037219837949927
           format: int64
-        example: 4653408796966768717
+        example: 6900749919996029500
       - name: b
         in: path
         description: Right operand
@@ -278,9 +303,9 @@ paths:
         schema:
           type: integer
           description: Right operand
-          example: 646857599021417915
+          example: 7935161719722942308
           format: int64
-        example: 7296465065953505499
+        example: 8671084678997159237
       responses:
         "200":
           description: OK response.
@@ -288,9 +313,9 @@ paths:
             application/json:
               schema:
                 type: integer
-                example: 4055023247966573277
+                example: 2397875620162332677
                 format: int64
-              example: 4736302544386532925
+              example: 7886570427086943347
 components:
   schemas:
     CreateNoteResponseBody:
@@ -300,7 +325,7 @@ components:
           $ref: '#/components/schemas/NoteResponse'
       example:
         NoteResponse:
-          UUID: Et consequatur quis dolorum corporis officiis rerum.
+          UUID: Ea ut enim aut.
       required:
       - NoteResponse
     Error:
@@ -331,7 +356,7 @@ components:
         timeout:
           type: boolean
           description: Is the error a timeout?
-          example: false
+          example: true
       example:
         id: 3F1FKVRR
         message: Value of ID must be an integer
@@ -350,9 +375,9 @@ components:
           $ref: '#/components/schemas/Note'
       example:
         Note:
-          Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
+          Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
     GetNotesResponseBody:
       type: object
       properties:
@@ -362,71 +387,68 @@ components:
             $ref: '#/components/schemas/Note'
           description: list of notes
           example:
-          - Body: Culpa odit.
-            Title: Iure repellat.
-            UUID: Odit non.
-          - Body: Culpa odit.
-            Title: Iure repellat.
-            UUID: Odit non.
-          - Body: Culpa odit.
-            Title: Iure repellat.
-            UUID: Odit non.
-          - Body: Culpa odit.
-            Title: Iure repellat.
-            UUID: Odit non.
+          - Body: Ut rerum ipsam eveniet.
+            Title: Non quod et facere.
+            UUID: Omnis velit laboriosam unde omnis incidunt.
+          - Body: Ut rerum ipsam eveniet.
+            Title: Non quod et facere.
+            UUID: Omnis velit laboriosam unde omnis incidunt.
+          - Body: Ut rerum ipsam eveniet.
+            Title: Non quod et facere.
+            UUID: Omnis velit laboriosam unde omnis incidunt.
       example:
         notes:
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
-        - Body: Culpa odit.
-          Title: Iure repellat.
-          UUID: Odit non.
+        - Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
+        - Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
+        - Body: Ut rerum ipsam eveniet.
+          Title: Non quod et facere.
+          UUID: Omnis velit laboriosam unde omnis incidunt.
     Note:
       type: object
       properties:
         Body:
           type: string
           description: The Body of the Note
-          example: Accusantium doloribus.
+          example: Sed ratione aliquam quia.
         Title:
           type: string
           description: The title of the Note
-          example: Laudantium molestiae nobis dolorem sunt perferendis omnis.
+          example: Quo quidem voluptas excepturi beatae qui occaecati.
         UUID:
           type: string
           description: The UUID of the created note
-          example: Ducimus dolore qui consequuntur qui dolor quis.
+          example: Odit temporibus ut.
       example:
-        Body: Qui dolores voluptas suscipit ut rerum.
-        Title: Nostrum cumque deserunt labore hic.
-        UUID: Sed ea nihil.
+        Body: Et ullam qui.
+        Title: Et sed fuga eos.
+        UUID: Consequatur sapiente aut unde.
     NoteDetails:
       type: object
       properties:
         Body:
           type: string
           description: The Body of the Note
-          example: Qui occaecati dolor.
+          example: Officiis non culpa dolores.
         Title:
           type: string
           description: The title of the Note
-          example: Sint dolor quo quidem voluptas excepturi.
+          example: Est repellendus asperiores non veritatis tenetur qui.
       example:
-        Body: Quae et sed fuga eos dolore et.
-        Title: Ratione aliquam quia neque odit temporibus.
+        Body: Vitae culpa ullam autem magni.
+        Title: Odio nemo eligendi officiis nihil.
     NoteResponse:
       type: object
       properties:
         UUID:
           type: string
           description: The UUID of the Created Note
-          example: Qui autem consequatur sapiente aut unde aut.
+          example: Harum dolor error quibusdam accusantium.
       example:
-        UUID: Et repellat quis.
+        UUID: At quis quae itaque.
 tags:
 - name: calc
   description: The calc service performs operations on numbers.
