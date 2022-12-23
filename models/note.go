@@ -1,10 +1,10 @@
 package models
 
 import (
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"goa-test/gen/calc"
 	"time"
-	"github.com/google/uuid"
 )
 
 type Note struct {
@@ -13,7 +13,7 @@ type Note struct {
 	UserID    string    `json:"user_id" bson:"user_id"`
 	Title     string    `json:"title" bson:"title"`
 	Body      string    `json:"body,omitempty" bson:"body"`
-	UUID string `json:"uuid" bson:"uuid"`
+	UUID      string    `json:"uuid" bson:"uuid"`
 }
 
 func (nt *Note) MarshalBSON() ([]byte, error) {
@@ -27,7 +27,7 @@ func (nt *Note) MarshalBSON() ([]byte, error) {
 	return bson.Marshal((*adapt)(nt))
 }
 
-func (nt *Note) setFromServiceNote(serviceNote calc.Note) {
+func (nt *Note) setFromServiceNote(serviceNote calc.NoteDetails) {
 	if serviceNote.Title != nil {
 		nt.Title = *serviceNote.Title
 	}
@@ -38,8 +38,8 @@ func (nt *Note) setFromServiceNote(serviceNote calc.Note) {
 
 func GetNewNote(payloadData calc.CreateNotePayload) (retVal Note) {
 	retVal.UserID = payloadData.UserID
-	if payloadData.Note != nil {
-		retVal.setFromServiceNote(*payloadData.Note)
+	if payloadData.NoteDetails != nil {
+		retVal.setFromServiceNote(*payloadData.NoteDetails)
 	}
 	return
 }
