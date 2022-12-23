@@ -8,7 +8,12 @@ var (
 	Note = Type("Note", func() {
 		Field(1, "Title", String, "The title of the Note")
 		Field(2, "Body", String, "The Body of the Note")
+		Field(3, "UUID", String, "The UUID of the created note")
 
+	})
+	NoteDetails = Type("NoteDetails", func() {
+		Field(1, "Title", String, "The title of the Note")
+		Field(2, "Body", String, "The Body of the Note")
 	})
 	NoteResponse = Type("NoteResponse", func() {
 		Field(1, "UUID", String, "The UUID of the Created Note")
@@ -103,9 +108,31 @@ var _ = Service("calc", func() {
 		Result(func() {
 			Field(1, "notes", ArrayOf(Note), "list of notes")
 		})
+		Error("NoteMissing")
 
 		HTTP(func() {
 			GET("/notes/{userID}")
+			Response("NoteMissing", StatusNotFound)
+		})
+
+		GRPC(func() {
+		})
+	})
+
+	Method("getNote", func() {
+		Payload(func() {
+			Field(1, "uuid", String, "The note's UUID")
+			Required("uuid")
+		})
+
+		Result(func() {
+			Field(1, "Note", Note, "The note matching the UUID")
+		})
+		Error("NoteMissing")
+
+		HTTP(func() {
+			GET("/note/{uuid}")
+			Response("NoteMissing", StatusNotFound)
 		})
 
 		GRPC(func() {
@@ -114,7 +141,7 @@ var _ = Service("calc", func() {
 	Method("createNote", func() {
 		Payload(func() {
 			Field(1, "userID", String, "The UserID for the note")
-			Field(2, "Note", Note, "The Note data to be saved")
+			Field(2, "NoteDetails", NoteDetails, "The Note data to be saved")
 			Required("userID")
 		})
 		Result(func() {
@@ -123,8 +150,8 @@ var _ = Service("calc", func() {
 		})
 		Error("BadRequest")
 		HTTP(func() {
-			POST("/notes/{userID}")
-			Body("Note")
+			POST("/note/create/{userID}")
+			Body("NoteDetails")
 			Response(StatusCreated)
 			Response("BadRequest", StatusBadRequest)
 
