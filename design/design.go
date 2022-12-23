@@ -160,5 +160,21 @@ var _ = Service("calc", func() {
 		})
 	})
 
+	Method("deleteNote", func() {
+		Payload(func() {
+			Field(1, "uuid", String, "The uuid for the note")
+			Required("uuid")
+		})
+		Error("NoteMissing")
+		HTTP(func() {
+			DELETE("/note/{uuid}")
+			Response(StatusNoContent)
+			Response("NoteMissing", StatusNotFound)
+
+		})
+		GRPC(func() {
+		})
+	})
+
 	Files("/openapi.json", "./gen/http/openapi.json")
 })
