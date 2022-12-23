@@ -4,6 +4,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"goa-test/gen/calc"
 	"time"
+	"github.com/google/uuid"
 )
 
 type Note struct {
@@ -12,11 +13,15 @@ type Note struct {
 	UserID    string    `json:"user_id" bson:"user_id"`
 	Title     string    `json:"title" bson:"title"`
 	Body      string    `json:"body,omitempty" bson:"body"`
+	UUID string `json:"uuid" bson:"uuid"`
 }
 
 func (nt *Note) MarshalBSON() ([]byte, error) {
 	if nt.CreatedAt.IsZero() {
 		nt.CreatedAt = time.Now()
+	}
+	if nt.UUID == "" {
+		nt.UUID = uuid.NewString()
 	}
 	type adapt Note
 	return bson.Marshal((*adapt)(nt))
