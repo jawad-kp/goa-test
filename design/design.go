@@ -10,6 +10,9 @@ var (
 		Field(2, "Body", String, "The Body of the Note")
 
 	})
+	NoteResponse = Type("NoteResponse", func() {
+		Field(1, "UUID", String, "The UUID of the Created Note")
+	})
 )
 
 var _ = API("calc", func() {
@@ -114,6 +117,10 @@ var _ = Service("calc", func() {
 			Field(2, "Note", Note, "The Note data to be saved")
 			Required("userID")
 		})
+		Result(func() {
+			Field(1, "NoteResponse", NoteResponse, "The Created Note")
+			Required("NoteResponse")
+		})
 		Error("BadRequest")
 		HTTP(func() {
 			POST("/notes/{userID}")
@@ -122,7 +129,6 @@ var _ = Service("calc", func() {
 			Response("BadRequest", StatusBadRequest)
 
 		})
-
 		GRPC(func() {
 		})
 	})
